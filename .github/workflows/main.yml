@@ -19,14 +19,11 @@ jobs:
       with:
         node-version: 14.x 
 
-    - name: Navigate to applications folder
-      run: cd applications
-
-    - name: Install node dependencies
-      run: npm ci
-
     - name: Run Unit tests
-      run: npm run test -- --ci --coverage --reporters=default --reporters=jest-junit
+      run: |
+        cd applications
+        npm ci
+        npm run test -- --ci --coverage --reporters=default --reporters=jest-junit
 
     - name: Report
       uses: dorny/test-reporter@v1
