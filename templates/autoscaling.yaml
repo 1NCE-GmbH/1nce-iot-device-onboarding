@@ -1,0 +1,120 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "AutoScaling and Launch Configuration for openvpn onboarding"
+Parameters:
+  #=======================================================
+  #
+  #                   CloudFormation Parameters
+  #
+  #=======================================================
+  EC2SecurityGroupId:
+    Type: String
+    Description: Security group id used for EC2 Instance
+  EC2AmiId:
+    Type: String
+    Description: AMI ID Used for EC2 Ubuntu Instance
+    AllowedPattern: "^ami-[a-zA-Z0-9]*$"
+    MinLength: "4"
+  EC2InstanceType:
+    Type: String
+    Description: Instance Type Used for EC2
+    Default: "t2.micro"
+  VPCPrivateSubnetId:
+    Type: String
+    Description: VPC Private Subnet id
+  VPCPrivateSubnetAvailabilityZone:
+    Type: String
+    Description: VPC Private Subnet Availability zone
+  EC2UserData:
+    Type: String
+    Description: User Data script
+Resources:
+  #=======================================================
+  #
+  #             AutoScaling and Launch template resources
+  #
+  #=======================================================
+  IAMRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      Path: "/"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "ec2.amazonaws.com"
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - !Ref IAMManagedPolicy
+        - "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+      Description: "Allows EC2 instances to call AWS services on your behalf."
+
+  IAMManagedPolicy:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      Path: "/"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action:
+              - "ssm:PutParameter"
+              - "ssm:GetParameter"
+            Resource:
+              - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*"
+          - Effect: "Allow"
+            Action:
+              - "secretsmanager:GetSecretValue"
+            Resource:
+              - !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:*"
+          - Effect: "Allow"
+            Action:
+              - "apigateway:GET"
+            Resource:
+              - !Sub "arn:aws:apigateway:${AWS::Region}::/apikeys"
+
+  IAMInstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      Path: "/"
+      InstanceProfileName: !Ref IAMRole
+      Roles:
+        - !Ref IAMRole
+
+  AutoScalingGroup:
+    Type: "AWS::AutoScaling::AutoScalingGroup"
+    Properties:
+      AutoScalingGroupName: "openvpn-onboarding-autoscaling-group"
+      LaunchTemplate:
+        LaunchTemplateId: !Ref EC2LaunchTemplate
+        Version: !GetAtt "EC2LaunchTemplate.LatestVersionNumber"
+      MinSize: "1"
+      MaxSize: "1"
+      DesiredCapacity: "1"
+      Cooldown: "300"
+      AvailabilityZones:
+        - !Ref VPCPrivateSubnetAvailabilityZone
+      HealthCheckType: "EC2"
+      HealthCheckGracePeriod: 300
+      VPCZoneIdentifier:
+        - !Ref VPCPrivateSubnetId
+      TerminationPolicies:
+        - "Default"
+      NewInstancesProtectedFromScaleIn: false
+
+  EC2LaunchTemplate:
+    Type: "AWS::EC2::LaunchTemplate"
+    Properties:
+      LaunchTemplateName: "openvpn-onboarding-launch-template"
+      LaunchTemplateData:
+        UserData: !Ref EC2UserData
+        IamInstanceProfile:
+          Arn: !GetAtt IAMInstanceProfile.Arn
+        NetworkInterfaces:
+          - DeviceIndex: 0
+            Groups:
+              - !Ref EC2SecurityGroupId
+            SubnetId: !Ref VPCPrivateSubnetId
+        ImageId: !Ref EC2AmiId
+        InstanceType: !Ref EC2InstanceType

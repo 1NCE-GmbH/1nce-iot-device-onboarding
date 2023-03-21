@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Generates IOT Core policy with a given name"
+Resources:
+  #=======================================================
+  #                                                       
+  #                    IOT Core Policy          
+  #                                                       
+  #=======================================================
+  IOTCorePolicy:
+    Type: AWS::IoT::Policy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - iot:Connect
+            Resource:
+              - !Sub arn:aws:iot:${AWS::Region}:${AWS::AccountId}:client/${!iot:Connection.Thing.ThingName}
+          - Effect: Allow
+            Action:
+              - iot:Publish
+              - iot:Receive
+            Resource:
+              - !Sub arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/${!iot:Connection.Thing.ThingName}/*
+          - Effect: Allow
+            Action:
+              - iot:Subscribe
+            Resource:
+              - !Sub arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topicfilter/${!iot:Connection.Thing.ThingName}/*
+      PolicyName: !Sub "device-onboarding-${AWS::Region}"
+
+Outputs:
+  #=======================================================
+  #                                                       
+  #                      OUTPUTS                
+  #                                                       
+  #=======================================================
+  IOTCorePolicyArn:
+    Description: The ARN of the newly created IOT Core Policy
+    Value: !GetAtt IOTCorePolicy.Arn
+  IOTCorePolicyName:
+    Description: The name of the newly created IOT Core Policy
+    Value: !GetAtt IOTCorePolicy.Id

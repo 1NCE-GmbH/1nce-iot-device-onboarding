@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Generates sim create and delete SQS queues"
+Resources:
+  #=======================================================
+  #
+  #             SQS Queue resources
+  #
+  #=======================================================
+  SimDeleteQueue:
+    Type: "AWS::SQS::Queue"
+    Properties:
+      ContentBasedDeduplication: "false"
+      DelaySeconds: "0"
+      FifoQueue: "true"
+      MaximumMessageSize: "262144"
+      MessageRetentionPeriod: "345600"
+      ReceiveMessageWaitTimeSeconds: "0"
+      VisibilityTimeout: "30"
+      QueueName: "sims-delete.fifo"
+
+  SimCreateQueue:
+    Type: "AWS::SQS::Queue"
+    Properties:
+      ContentBasedDeduplication: "false"
+      DelaySeconds: "0"
+      FifoQueue: "true"
+      MaximumMessageSize: "262144"
+      MessageRetentionPeriod: "345600"
+      ReceiveMessageWaitTimeSeconds: "0"
+      VisibilityTimeout: "30"
+      QueueName: "sims-create.fifo"
+Outputs:
+  #=======================================================
+  #
+  #                 CloudFormation Outputs
+  #
+  #=======================================================
+  SimDeleteQueueURL:
+    Description: "URL of Sim Delete SQS Queue"
+    Value:
+      Ref: "SimDeleteQueue"
+  SimDeleteQueueARN:
+    Description: "ARN of Sim Delete Queue"
+    Value:
+      Fn::GetAtt:
+        - "SimDeleteQueue"
+        - "Arn"
+  SimDeleteQueueName:
+    Description: "Name of Sim Delete Queue"
+    Value:
+      Fn::GetAtt:
+        - "SimDeleteQueue"
+        - "QueueName"
+  SimCreateQueueURL:
+    Description: "URL of Sim Create SQS Queue"
+    Value:
+      Ref: "SimCreateQueue"
+  SimCreateQueueARN:
+    Description: "ARN of Sim Create Queue"
+    Value:
+      Fn::GetAtt:
+        - "SimCreateQueue"
+        - "Arn"
+  SimCreateQueueName:
+    Description: "Name of Sim Create Queue"
+    Value:
+      Fn::GetAtt:
+        - "SimCreateQueue"
+        - "QueueName"
