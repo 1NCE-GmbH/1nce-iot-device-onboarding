@@ -18,3 +18,21 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 14.x 
+
+    - name: Navigate to applications folder
+      run: cd applications
+
+    - name: Install node dependencies
+      run: npm ci
+
+    - name: Run Unit tests
+      run: npm run test -- --ci --coverage --reporters=default --reporters=jest-junit
+
+    - name: Report
+      uses: dorny/test-reporter@v1
+      if: always()
+      with:
+        name: Maven Tests
+        path: applications/junit.xml
+        reporter: java-junit
+        fail-on-error: true
