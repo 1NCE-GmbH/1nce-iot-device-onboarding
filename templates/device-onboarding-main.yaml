@@ -53,17 +53,18 @@ Mappings:
   Configuration:
     BaseConfiguration:
       CodebaseVersion: V1.0.0
-      CodebaseBucket: device-onboarding-dev-cloudformation-templates
+      CodebaseBucket: device-onboarding-prod-cloudformation-templates
       CodebaseBucketRegion: eu-central-1
       SimRetrievalLambdaZipFile: lambda/sim-retrieval.zip
       CreateSimLambdaZipFile: lambda/create-sim.zip
+      DisableSimLambdaZipFile: lambda/disable-sim.zip
       DeviceOnboardingLambdaZipFile: lambda/device-onboarding.zip
       OnboardingApiKeyName: device-onboarding-key
       ApiEndpointSSMParamName: openvpn-onboarding-api-endpoint
       ProxyServerSSMParamName: openvpn-onboarding-proxy-server
       BreakoutRegionSSMParamName: breakout-region
       OpenVPNCredentialsSecretName: open-source-device-onboarding-openvpn-credentials
-      UserDataBase64Script: IyEvYmluL2Jhc2gKYXB0LWdldCB1cGRhdGUgLXkKYXB0LWdldCBpbnN0YWxsIC15IG9wZW52cG4gbmV0LXRvb2xzIHVuemlwIGN1cmwgbmdpbngganEKIyBEb3dubG9hZCBhbmQgaW5zdGFsbCBBV1MKY3VybCAiaHR0cHM6Ly9hd3NjbGkuYW1hem9uYXdzLmNvbS9hd3NjbGktZXhlLWxpbnV4LXg4Nl82NC56aXAiIC1vICJhd3NjbGl2Mi56aXAiCnVuemlwIGF3c2NsaXYyLnppcAouL2F3cy9pbnN0YWxsCiMgR2V0IGJyZWFrb3V0IHJlZ2lvbgpicmVha291dF9yZWdpb249JChhd3Mgc3NtIGdldC1wYXJhbWV0ZXIgLS1uYW1lIGJyZWFrb3V0LXJlZ2lvbiB8IGpxIC1yICcuUGFyYW1ldGVyLlZhbHVlJykKIyBEb3dubG9hZCBhbmQgc2F2ZSBPcGVuVlBOIGNvbmZpZ3VyYXRpb24gYWNjb3JkaW5nIHRvIGJyZWFrb3V0IHJlZ2lvbgpjdXJsIGh0dHBzOi8vZGV2aWNlLW9uYm9hcmRpbmctZGV2LWNsb3VkZm9ybWF0aW9uLXRlbXBsYXRlcy5zMy5ldS1jZW50cmFsLTEuYW1hem9uYXdzLmNvbS9WMS4wLjAvdnBuQ29uZmlnLyRicmVha291dF9yZWdpb24uY29uZiAtbyAvZXRjL29wZW52cG4vb3BlbnZwbi0xbmNlLWNsaWVudC5jb25mCiMgR2V0IGFuZCBTYXZlIE9wZW5WUE4gY3JlZGVudGlhbHMgZmlsZQpvcGVudnBuX2NyZWRlbnRpYWxzPSQoYXdzIHNlY3JldHNtYW5hZ2VyIGdldC1zZWNyZXQtdmFsdWUgLS1zZWNyZXQtaWQgb3Blbi1zb3VyY2UtZGV2aWNlLW9uYm9hcmRpbmctb3BlbnZwbi1jcmVkZW50aWFscyB8IGpxIC1yICcuU2VjcmV0U3RyaW5nJykKZWNobyAtZSAiJChlY2hvICRvcGVudnBuX2NyZWRlbnRpYWxzIHwganEgLXIgJy51c2VybmFtZScpXG4kKGVjaG8gJG9wZW52cG5fY3JlZGVudGlhbHMgfCBqcSAtciAnLnBhc3N3b3JkJykiID4gL2V0Yy9vcGVudnBuL2NyZWRlbnRpYWxzLnR4dAojIFN0YXJ0IE9wZW5WUE4gYXMgYSBzZXJ2aWNlCnN1ZG8gc3lzdGVtY3RsIHN0YXJ0IG9wZW52cG5Ab3BlbnZwbi0xbmNlLWNsaWVudAojIFdhaXQgZm9yIHR1bjAgaW50ZXJmYWNlIHRvIGJlIHByZXNlbnQKaWZjPXR1bjAKd2hpbGUgdHJ1ZTsgZG8KICAgIGlmY29uZmlnICRpZmMKICAgIHJlcz0kPwogICAgaWYgWyAkcmVzIC1lcSAwIF07IHRoZW4KICAgICAgIGVjaG8gSW50ZXJmYWNlICRpZmMgaXMgcHJlc2VudAogICAgICAgYnJlYWsKICAgIGZpCiAgICBlY2hvIFdhaXRpbmcgZm9yIGludGVyZmFjZSAkaWZjCiAgICBzbGVlcCAzCmRvbmUKIyBHZXQgT3BlblZQTiB0dW5uZWwgaXAgYWRkcmVzcwppcF91bmN1dD1gaWZjb25maWcgJGlmYyB8IGdyZXAgLWkgbmV0bWFza2AKaXBfZW5kY3V0PSR7aXBfdW5jdXQjKmluZXR9CmlwPSR7aXBfZW5kY3V0JSAgbmV0bWFzayp9CiMgU3RvcmUgT3BlblZQTiB0dW5uZWwgaXAgYWRkcmVzcyBpbiBTU00KYXdzIHNzbSBwdXQtcGFyYW1ldGVyIC0tbmFtZSBvcGVudnBuLW9uYm9hcmRpbmctcHJveHktc2VydmVyIC0tdmFsdWUgIiRpcDo4MDgwIiAtLXR5cGUgU3RyaW5nIC0tb3ZlcndyaXRlCiMgR2V0IGFuZCBleHBvcnQgTmdpbnggY29uZmlnIGFzIGVudiB2YXJpYWJsZXMKZXhwb3J0IE9OQk9BUkRJTkdfRU5EUE9JTlQ9JChhd3Mgc3NtIGdldC1wYXJhbWV0ZXIgLS1uYW1lIG9wZW52cG4tb25ib2FyZGluZy1hcGktZW5kcG9pbnQgfCBqcSAtciAnLlBhcmFtZXRlci5WYWx1ZScpCmV4cG9ydCBPTkJPQVJESU5HX1hfQVBJX0tFWT0kKGF3cyBhcGlnYXRld2F5IGdldC1hcGkta2V5cyAtLW5hbWUtcXVlcnkgZGV2aWNlLW9uYm9hcmRpbmcta2V5IC0taW5jbHVkZS12YWx1ZXMgfCBqcSAtciAnLml0ZW1zWzBdLnZhbHVlJykKZXhwb3J0IE5HSU5YX1BPUlQ9ODA4MApleHBvcnQgRE9MTEFSPSIkIiAjIG5lZWRlZCB0byBlc2NhcGUgbmdpbnggYnVpbHQtaW4gZW52IHZhcmlhYmxlcwojIERvd25sb2FkIE5naW54IHRlbXBsYXRlIGFuZCBzZXQgdGhlIHNlcnZlcgpjdXJsIGh0dHBzOi8vZGV2aWNlLW9uYm9hcmRpbmctZGV2LWNsb3VkZm9ybWF0aW9uLXRlbXBsYXRlcy5zMy5ldS1jZW50cmFsLTEuYW1hem9uYXdzLmNvbS9WMS4wLjAvbmdpbnhDb25maWcvbmdpbnguY29uZiAtbyAvZXRjL25naW54L2NvbmYuZC9teS10ZW1wbGF0ZS5jb25mLnRlbXBsYXRlCmVudnN1YnN0IDwgL2V0Yy9uZ2lueC9jb25mLmQvbXktdGVtcGxhdGUuY29uZi50ZW1wbGF0ZSA+IC9ldGMvbmdpbngvc2l0ZXMtYXZhaWxhYmxlL2RlZmF1bHQKc3VkbyBjaG1vZCA2NDQgL2V0Yy9uZ2lueC9zaXRlcy1hdmFpbGFibGUvZGVmYXVsdAojIFJ1biBOZ2lueCBzZXJ2ZXIgYXMgYSBzZXJ2aWNlCnN1ZG8gc3lzdGVtY3RsIHN0b3AgbmdpbngKc3VkbyBzeXN0ZW1jdGwgc3RhcnQgbmdpbngKc3VkbyBzeXN0ZW1jdGwgZW5hYmxlIG5naW54CiMgUmVib290IG1hY2hpbmUKcmVib290Cg==
+      UserDataBase64Script: IyEvYmluL2Jhc2gKYXB0LWdldCB1cGRhdGUgLXkKYXB0LWdldCBpbnN0YWxsIC15IG9wZW52cG4gbmV0LXRvb2xzIHVuemlwIGN1cmwgbmdpbngganEKIyBEb3dubG9hZCBhbmQgaW5zdGFsbCBBV1MKY3VybCAiaHR0cHM6Ly9hd3NjbGkuYW1hem9uYXdzLmNvbS9hd3NjbGktZXhlLWxpbnV4LXg4Nl82NC56aXAiIC1vICJhd3NjbGl2Mi56aXAiCnVuemlwIGF3c2NsaXYyLnppcAouL2F3cy9pbnN0YWxsCiMgR2V0IGJyZWFrb3V0IHJlZ2lvbgpicmVha291dF9yZWdpb249JChhd3Mgc3NtIGdldC1wYXJhbWV0ZXIgLS1uYW1lIGJyZWFrb3V0LXJlZ2lvbiB8IGpxIC1yICcuUGFyYW1ldGVyLlZhbHVlJykKIyBEb3dubG9hZCBhbmQgc2F2ZSBPcGVuVlBOIGNvbmZpZ3VyYXRpb24gYWNjb3JkaW5nIHRvIGJyZWFrb3V0IHJlZ2lvbgpjdXJsIGh0dHBzOi8vZGV2aWNlLW9uYm9hcmRpbmctcHJvZC1jbG91ZGZvcm1hdGlvbi10ZW1wbGF0ZXMuczMuZXUtY2VudHJhbC0xLmFtYXpvbmF3cy5jb20vVjEuMC4wL3ZwbkNvbmZpZy8kYnJlYWtvdXRfcmVnaW9uLmNvbmYgLW8gL2V0Yy9vcGVudnBuL29wZW52cG4tMW5jZS1jbGllbnQuY29uZgojIEdldCBhbmQgU2F2ZSBPcGVuVlBOIGNyZWRlbnRpYWxzIGZpbGUKb3BlbnZwbl9jcmVkZW50aWFscz0kKGF3cyBzZWNyZXRzbWFuYWdlciBnZXQtc2VjcmV0LXZhbHVlIC0tc2VjcmV0LWlkIG9wZW4tc291cmNlLWRldmljZS1vbmJvYXJkaW5nLW9wZW52cG4tY3JlZGVudGlhbHMgfCBqcSAtciAnLlNlY3JldFN0cmluZycpCmVjaG8gLWUgIiQoZWNobyAkb3BlbnZwbl9jcmVkZW50aWFscyB8IGpxIC1yICcudXNlcm5hbWUnKVxuJChlY2hvICRvcGVudnBuX2NyZWRlbnRpYWxzIHwganEgLXIgJy5wYXNzd29yZCcpIiA+IC9ldGMvb3BlbnZwbi9jcmVkZW50aWFscy50eHQKIyBTdGFydCBPcGVuVlBOIGFzIGEgc2VydmljZQpzdWRvIHN5c3RlbWN0bCBzdGFydCBvcGVudnBuQG9wZW52cG4tMW5jZS1jbGllbnQKIyBXYWl0IGZvciB0dW4wIGludGVyZmFjZSB0byBiZSBwcmVzZW50CmlmYz10dW4wCndoaWxlIHRydWU7IGRvCiAgICBpZmNvbmZpZyAkaWZjCiAgICByZXM9JD8KICAgIGlmIFsgJHJlcyAtZXEgMCBdOyB0aGVuCiAgICAgICBlY2hvIEludGVyZmFjZSAkaWZjIGlzIHByZXNlbnQKICAgICAgIGJyZWFrCiAgICBmaQogICAgZWNobyBXYWl0aW5nIGZvciBpbnRlcmZhY2UgJGlmYwogICAgc2xlZXAgMwpkb25lCiMgR2V0IE9wZW5WUE4gdHVubmVsIGlwIGFkZHJlc3MKaXBfdW5jdXQ9YGlmY29uZmlnICRpZmMgfCBncmVwIC1pIG5ldG1hc2tgCmlwX2VuZGN1dD0ke2lwX3VuY3V0IyppbmV0fQppcD0ke2lwX2VuZGN1dCUgIG5ldG1hc2sqfQojIFN0b3JlIE9wZW5WUE4gdHVubmVsIGlwIGFkZHJlc3MgaW4gU1NNCmF3cyBzc20gcHV0LXBhcmFtZXRlciAtLW5hbWUgb3BlbnZwbi1vbmJvYXJkaW5nLXByb3h5LXNlcnZlciAtLXZhbHVlICIkaXA6ODA4MCIgLS10eXBlIFN0cmluZyAtLW92ZXJ3cml0ZQojIEdldCBhbmQgZXhwb3J0IE5naW54IGNvbmZpZyBhcyBlbnYgdmFyaWFibGVzCmV4cG9ydCBPTkJPQVJESU5HX0VORFBPSU5UPSQoYXdzIHNzbSBnZXQtcGFyYW1ldGVyIC0tbmFtZSBvcGVudnBuLW9uYm9hcmRpbmctYXBpLWVuZHBvaW50IHwganEgLXIgJy5QYXJhbWV0ZXIuVmFsdWUnKQpleHBvcnQgT05CT0FSRElOR19YX0FQSV9LRVk9JChhd3MgYXBpZ2F0ZXdheSBnZXQtYXBpLWtleXMgLS1uYW1lLXF1ZXJ5IGRldmljZS1vbmJvYXJkaW5nLWtleSAtLWluY2x1ZGUtdmFsdWVzIHwganEgLXIgJy5pdGVtc1swXS52YWx1ZScpCmV4cG9ydCBOR0lOWF9QT1JUPTgwODAKZXhwb3J0IERPTExBUj0iJCIgIyBuZWVkZWQgdG8gZXNjYXBlIG5naW54IGJ1aWx0LWluIGVudiB2YXJpYWJsZXMKIyBEb3dubG9hZCBOZ2lueCB0ZW1wbGF0ZSBhbmQgc2V0IHRoZSBzZXJ2ZXIKY3VybCBodHRwczovL2RldmljZS1vbmJvYXJkaW5nLXByb2QtY2xvdWRmb3JtYXRpb24tdGVtcGxhdGVzLnMzLmV1LWNlbnRyYWwtMS5hbWF6b25hd3MuY29tL1YxLjAuMC9uZ2lueENvbmZpZy9uZ2lueC5jb25mIC1vIC9ldGMvbmdpbngvY29uZi5kL215LXRlbXBsYXRlLmNvbmYudGVtcGxhdGUKZW52c3Vic3QgPCAvZXRjL25naW54L2NvbmYuZC9teS10ZW1wbGF0ZS5jb25mLnRlbXBsYXRlID4gL2V0Yy9uZ2lueC9zaXRlcy1hdmFpbGFibGUvZGVmYXVsdApzdWRvIGNobW9kIDY0NCAvZXRjL25naW54L3NpdGVzLWF2YWlsYWJsZS9kZWZhdWx0CiMgUnVuIE5naW54IHNlcnZlciBhcyBhIHNlcnZpY2UKc3VkbyBzeXN0ZW1jdGwgc3RvcCBuZ2lueApzdWRvIHN5c3RlbWN0bCBzdGFydCBuZ2lueApzdWRvIHN5c3RlbWN0bCBlbmFibGUgbmdpbngKIyBSZWJvb3QgbWFjaGluZQpyZWJvb3QK
 
 Resources:
   #=======================================================
@@ -123,8 +124,8 @@ Resources:
         LambdaCron: !Ref LambdaCron
         SimCreateQueueARN: !GetAtt SQSResourcesStack.Outputs.SimCreateQueueARN
         SimCreateQueueURL: !GetAtt SQSResourcesStack.Outputs.SimCreateQueueURL
-        SimDeleteQueueARN: !GetAtt SQSResourcesStack.Outputs.SimDeleteQueueARN
-        SimDeleteQueueURL: !GetAtt SQSResourcesStack.Outputs.SimDeleteQueueURL
+        SimDisableQueueARN: !GetAtt SQSResourcesStack.Outputs.SimDisableQueueARN
+        SimDisableQueueURL: !GetAtt SQSResourcesStack.Outputs.SimDisableQueueURL
         SimTableName: !GetAtt SimTableStack.Outputs.SimTableName
         SimTableARN: !GetAtt SimTableStack.Outputs.SimTableArn
         SnsFailureSummaryTopicARN: !GetAtt SNSResourcesStack.Outputs.SNSFailureTopicArn
@@ -189,6 +190,42 @@ Resources:
             - BaseConfiguration
             - CodebaseVersion
           - /create-sim.yaml
+
+  LambdaDisableSimStack:
+    Type: "AWS::CloudFormation::Stack"
+    Properties:
+      Parameters:
+        IotCorePolicyName: !GetAtt IOTCorePolicyStack.Outputs.IOTCorePolicyName
+        SnsFailureSummaryTopicARN: !GetAtt SNSResourcesStack.Outputs.SNSFailureTopicArn
+        SnsSuccessSummaryTopicARN: !GetAtt SNSResourcesStack.Outputs.SNSSuccessTopicArn
+        SimsTableName: !GetAtt SimTableStack.Outputs.SimTableName
+        SimTableARN: !GetAtt SimTableStack.Outputs.SimTableArn
+        SqsQueueARN: !GetAtt SQSResourcesStack.Outputs.SimDisableQueueARN
+        S3LocalBucketArn: !GetAtt S3BucketAndLocalFilesStack.Outputs.LocalBucketArn
+        S3LocalBucketName: !GetAtt S3BucketAndLocalFilesStack.Outputs.LocalBucketName
+        DisableSimLambdaZipPath: !Join
+          - ""
+          - - !FindInMap [Configuration, BaseConfiguration, CodebaseVersion]
+            - /
+            - !FindInMap [Configuration, BaseConfiguration, DisableSimLambdaZipFile]
+      TemplateURL: !Join
+        - ""
+        - - https://
+          - !FindInMap
+            - Configuration
+            - BaseConfiguration
+            - CodebaseBucket
+          - .s3-
+          - !FindInMap
+            - Configuration
+            - BaseConfiguration
+            - CodebaseBucketRegion
+          - .amazonaws.com/
+          - !FindInMap
+            - Configuration
+            - BaseConfiguration
+            - CodebaseVersion
+          - /disable-sim.yaml
 
   IotCoreEndpointProviderStack:
     Type: "AWS::CloudFormation::Stack"
@@ -423,6 +460,11 @@ Resources:
           - - !FindInMap [Configuration, BaseConfiguration, CodebaseVersion]
             - /
             - !FindInMap [Configuration, BaseConfiguration, CreateSimLambdaZipFile]
+        DisableSimLambdaZipPath: !Join
+          - ""
+          - - !FindInMap [Configuration, BaseConfiguration, CodebaseVersion]
+            - /
+            - !FindInMap [Configuration, BaseConfiguration, DisableSimLambdaZipFile]
         DeviceOnboardingLambdaZipPath: !Join
           - ""
           - - !FindInMap [Configuration, BaseConfiguration, CodebaseVersion]
@@ -474,7 +516,7 @@ Resources:
             - BaseConfiguration
             - CodebaseVersion
           - /secrets-manager.yaml
-  
+
   LambdaInvokeStack:
     Type: "AWS::CloudFormation::Stack"
     Properties:
