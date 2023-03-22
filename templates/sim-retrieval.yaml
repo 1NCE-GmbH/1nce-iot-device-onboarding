@@ -34,40 +34,40 @@ Parameters:
   SimCreateQueueARN:
     Description: SQS queue ARN to create SIMs
     Type: String
-    Default: ''
+    Default: ""
   SimCreateQueueURL:
     Description: SQS queue URL to create SIMs
     Type: String
-    Default: ''
+    Default: ""
   SimDeleteQueueARN:
     Description: SQS queue ARN to delete SIMs
     Type: String
-    Default: ''
+    Default: ""
   SimDeleteQueueURL:
     Description: SQS queue URL to delete SIMs
     Type: String
-    Default: ''
+    Default: ""
   SimTableARN:
     Description: Dynamo DB SIMs table ARN
     Type: String
-    Default: ''
+    Default: ""
   SimTableName:
     Description: Dynamo DB SIMs table name
     Type: String
-    Default: ''
+    Default: ""
   SnsFailureSummaryTopicARN:
     Type: String
     Description: SNS topic to post summary message on failure case
 
-Mappings: 
-  RegionToLayerArnMap: 
-    us-east-1: 
+Mappings:
+  RegionToLayerArnMap:
+    us-east-1:
       LayerArn: "arn:aws:lambda:us-east-1:177933569100:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
-    us-east-2: 
+    us-east-2:
       LayerArn: "arn:aws:lambda:us-east-2:590474943231:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
-    us-west-1: 
+    us-west-1:
       LayerArn: "arn:aws:lambda:us-west-1:997803712105:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
-    us-west-2: 
+    us-west-2:
       LayerArn: "arn:aws:lambda:us-west-2:345057560386:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
     ap-south-1:
       LayerArn: "arn:aws:lambda:ap-south-1:176022468876:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
@@ -87,11 +87,11 @@ Mappings:
       LayerArn: "arn:aws:lambda:eu-central-1:187925254637:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
     eu-west-1:
       LayerArn: "arn:aws:lambda:eu-west-1:015030872274:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
-    eu-west-2: 
+    eu-west-2:
       LayerArn: "arn:aws:lambda:eu-west-2:133256977650:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
-    eu-west-3: 
+    eu-west-3:
       LayerArn: "arn:aws:lambda:eu-west-3:780235371811:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
-    eu-north-1: 
+    eu-north-1:
       LayerArn: "arn:aws:lambda:eu-north-1:427196147048:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
     sa-east-1:
       LayerArn: "arn:aws:lambda:sa-east-1:933737806257:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
@@ -131,13 +131,13 @@ Resources:
                 Resource: !Ref "SimTableARN"
               - Effect: Allow
                 Action:
-                  - 's3:GetObject'
-                  - 's3:ListBucket'
-                  - 's3:GetBucketPolicy'
-                  - 'S3:PutObjectTagging'
+                  - "s3:GetObject"
+                  - "s3:ListBucket"
+                  - "s3:GetBucketPolicy"
+                  - "S3:PutObjectTagging"
                 Resource:
                   - !Join
-                    - ''
+                    - ""
                     - - !Ref S3LocalBucketArn
                       - /*
                   - !Ref S3LocalBucketArn
@@ -199,3 +199,13 @@ Resources:
         Size: 512
       Layers:
         - !FindInMap [RegionToLayerArnMap, !Ref "AWS::Region", LayerArn]
+
+Outputs:
+  #=======================================================
+  #
+  #                 CloudFormation Outputs
+  #
+  #=======================================================
+  FunctionName:
+    Description: "Sim Retrieval Function Name"
+    Value: !Ref LambdaSimRetrievalFunction

@@ -28,11 +28,6 @@ Parameters:
     Description: Crontab that determines when CloudWatch Events runs the rule that triggers the Lambda function.
     Default: cron(0 1 * * ? *)
     Type: String
-  EC2AmiId:
-    Type: String
-    Description: AMI ID Used for EC2 Ubuntu Instance
-    AllowedPattern: "^ami-[a-zA-Z0-9]*$"
-    MinLength: "4"
   APIGatewayStageName:
     Description: Stage name of API Gateway deployment
     Type: String
@@ -388,7 +383,6 @@ Resources:
       Parameters:
         EC2SecurityGroupId: !GetAtt NetworkResourcesStack.Outputs.EC2SecurityGroupId
         VPCPrivateSubnetId: !GetAtt NetworkResourcesStack.Outputs.VPCPrivateSubnetId
-        EC2AmiId: !Ref EC2AmiId
         VPCPrivateSubnetAvailabilityZone: !GetAtt NetworkResourcesStack.Outputs.VPCPrivateSubnetAvailabilityZone
         EC2UserData: !FindInMap
           - Configuration
@@ -480,3 +474,27 @@ Resources:
             - BaseConfiguration
             - CodebaseVersion
           - /secrets-manager.yaml
+  
+  LambdaInvokeStack:
+    Type: "AWS::CloudFormation::Stack"
+    Properties:
+      Parameters:
+        FunctionName: !GetAtt LambdaSimRetrievalStack.Outputs.FunctionName
+      TemplateURL: !Join
+        - ""
+        - - https://
+          - !FindInMap
+            - Configuration
+            - BaseConfiguration
+            - CodebaseBucket
+          - .s3-
+          - !FindInMap
+            - Configuration
+            - BaseConfiguration
+            - CodebaseBucketRegion
+          - .amazonaws.com/
+          - !FindInMap
+            - Configuration
+            - BaseConfiguration
+            - CodebaseVersion
+          - /lambda-invoke.yaml
