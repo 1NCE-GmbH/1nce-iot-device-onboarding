@@ -7,6 +7,24 @@ on:
     branches: [ main ]
 
 jobs:
+  lint-applications:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set Node.js 14.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: 14.x 
+
+    - name: Lint Applications
+      run: |
+        cd applications
+        npm ci
+        npm run lint
+    
   unit-tests:
     runs-on: ubuntu-latest
 
@@ -33,3 +51,19 @@ jobs:
         path: applications/junit.xml
         reporter: jest-junit
         fail-on-error: true
+
+  cloudformation-linter:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Cloud Formation Linter with Latest Version
+        uses: scottbrenner/cfn-lint-action@v2
+
+      - name: Print the Cloud Formation Linter Version & run Linter.
+        run: |
+          cfn-lint --version
+          cd templates
+          cfn-lint *.yml
