@@ -1,7 +1,7 @@
 
 #  Contributing Guidelines
 
-Thank you for your interest in 1NCE IoT Device Onboarding! You can help improve 1NCE IoT Device Onboarding by reporting issues ( bugs, feature requests, correction, or additional documentation). we greatly value feedback and contributions from our community.
+Thank you for your interest in 1NCE IoT Device Onboarding! You can help improve 1NCE IoT Device Onboarding by reporting issues (bugs, feature requests, correction, or additional documentation). we greatly value feedback and contributions from our community.
 
 ## General Overview
 If you are just beginning to work with IoT Device Onboarding you might first read our documentation.
@@ -12,7 +12,7 @@ From experience, the following recommendations help to get a software contributi
 
 * **Keep it simple:**  Try to use what is already there and don't change existing functions if not absolutely necessary.
 
-*  **Keep it small:** A PR with >1000 lines of changes will very likely make even the most active reviewer put your review on their long to-do list.
+* **Keep it small:** A PR with >1000 lines of changes will very likely make even the most active reviewer put your review on their long to-do list.
 * **Keep it modular:**  Make extensions to a feature or new features for a platform optionally to use.
 
 * **Provide tests:** They should be comprehensible and easy to be executed. Alternatively comprehensive testing procedures should be provided with your pull request.
@@ -40,11 +40,11 @@ Before reporting a bug, have a look at [open bugs](https://github.com/1NCE-GmbH/
 Once you have verified that the bug you have found hasn't been reported, opening an issue with bug label. 
 
 Each bug report issue have 5 sections that are to help us and other contributors understand the issue and eventually reproduce it: 
-1. description
+1. Description
 2. Steps to reproduce the issue
 3. Expected results
 4. Actual results
-5.  Anything unusual about your environment or integration
+5. Anything unusual about your environment or integration
 
 In summary, try to include as much information as possible to help maintainers or other developers fix the bug quickly.
 
@@ -66,23 +66,19 @@ Contributions via pull requests are much appreciated. Before sending us a pull r
 
 To send us a pull request, please:
 
-4. Fork the repository.
+1. Fork the repository.
 
-5. Modify the source; please focus on the specific change you are contributing. If you also reformat all the code, it will be hard for us to focus on your change.
+2. Modify the source; please focus on the specific change you are contributing. If you also reformat all the code, it will be hard for us to focus on your change.
 
-6. Ensure that your contributions conform to the [style guide](./docs/doxygen/style.dox).
+3. Ensure local tests pass.
 
-7. Ensure local tests pass.
+4. Commit to your fork using clear commit messages.
 
-8. Commit to your fork using clear commit messages.
+5. Send us a pull request, answering any default questions in the pull request interface.
 
-9. Send us a pull request, answering any default questions in the pull request interface.
+6. Pay attention to any automated CI failures reported in the pull request, and stay involved in the conversation.
 
-10. Pay attention to any automated CI failures reported in the pull request, and stay involved in the conversation.
-
-GitHub provides additional document on [forking a repository](https://help.github.com/articles/fork-a-repo/) and
-
-[creating a pull request](https://help.github.com/articles/creating-a-pull-request/).
+GitHub provides additional document on [forking a repository](https://help.github.com/articles/fork-a-repo/) and [creating a pull request](https://help.github.com/articles/creating-a-pull-request/).
 
 ##  Finding contributions to work on
 
