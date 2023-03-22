@@ -1,7 +1,7 @@
 ---
 name: "✍ Documentation Issue"
 description: Report an issue in the documentation
-title: "(short issue description)"
+title: "Documentation Issue"
 labels: [documentation]
 assignees: []
 body:
