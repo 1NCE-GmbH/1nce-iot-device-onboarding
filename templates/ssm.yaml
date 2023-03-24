@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "SSM parameters for openvpn onboarding"
+Parameters:
+  #=======================================================
+  #
+  #                   CloudFormation Parameters
+  #
+  #=======================================================
+  OnboardingEndpointUrl:
+    Type: String
+    Description: Onboarding Endpoint URL
+  ApiEndpointSSMParamName:
+    Type: String 
+    Description: Name of the SSM Param where api endpoint is stored
+  ProxyServerSSMParamName:
+    Type: String
+    Description: Name of the SSM Param where proxy server address is stored
+  BreakoutRegionSSMParamName:
+    Type: String
+    Description: Name of the SSM Param where Breakout Region is stored
+  BreakoutRegion:
+    Type: String
+    Description: Breakout Region
+Resources:
+  #=======================================================
+  #
+  #             SSM parameters resources
+  #
+  #=======================================================
+  SSMParameterApiEndpoint:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Ref ApiEndpointSSMParamName
+      Type: "String"
+      Value: !Ref "OnboardingEndpointUrl"
+      DataType: "text"
+      Tier: "Standard"
+
+  SSMParameterProxyServer:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Ref ProxyServerSSMParamName
+      Type: "String"
+      Value: "placeholder"
+      DataType: "text"
+      Description: "Onboarding proxy server"
+      Tier: "Standard"
+
+  SSMParameterBreakoutRegion:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Ref BreakoutRegionSSMParamName
+      Type: "String"
+      Value: !Ref BreakoutRegion
+      DataType: "text"
+      Description: "Breakout Region in 1NCE Portal"
+      Tier: "Standard"

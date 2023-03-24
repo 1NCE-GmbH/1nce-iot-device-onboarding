@@ -1,0 +1,24 @@
+# package directories
+node_modules
+jspm_packages
+
+# IDE
+/.vscode
+.idea/
+
+# export files
+docs/dist/*.json
+
+# jest coverage files
+coverage
+
+# exclude zip files
+*.zip
+
+# build folder
+applications/dist
+
+applications/junit.xml
+
+# OS X files
+.DS_Store

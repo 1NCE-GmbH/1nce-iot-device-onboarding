@@ -1,0 +1,152 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Network configuration for openvpn onboarding"
+Resources:
+  #=======================================================
+  #
+  #             OpenVPN Onboarding Network resources
+  #
+  #=======================================================
+  EC2VPC:
+    Type: "AWS::EC2::VPC"
+    Properties:
+      CidrBlock: "10.0.0.0/24"
+      EnableDnsSupport: true
+      EnableDnsHostnames: false
+      InstanceTenancy: "default"
+      Tags:
+        - Key: "Name"
+          Value: "openvpn-onboarding-vpc"
+
+  EC2SubnetPrivate:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      CidrBlock: "10.0.0.0/25"
+      VpcId: !Ref EC2VPC
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: "Name"
+          Value: "openvpn-onboarding-private-subnet"
+
+  EC2SubnetPublic:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      AvailabilityZone: !GetAtt EC2SubnetPrivate.AvailabilityZone
+      CidrBlock: "10.0.0.128/25"
+      VpcId: !Ref EC2VPC
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: "Name"
+          Value: "openvpn-onboarding-public-subnet"
+
+  EC2RouteTablePrivate:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId: !Ref EC2VPC
+      Tags:
+        - Key: "Name"
+          Value: "openvpn-onboarding-private-rtb"
+
+  EC2RouteTablePublic:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId: !Ref EC2VPC
+      Tags:
+        - Key: "Name"
+          Value: "openvpn-onboarding-public-rtb"
+
+  EC2RoutePrivate:
+    Type: "AWS::EC2::Route"
+    Properties:
+      DestinationCidrBlock: "0.0.0.0/0"
+      NatGatewayId: !Ref EC2NatGateway
+      RouteTableId: !Ref EC2RouteTablePrivate
+
+  EC2RoutePublic:
+    Type: "AWS::EC2::Route"
+    DependsOn : AttachGateway
+    Properties:
+      DestinationCidrBlock: "0.0.0.0/0"
+      GatewayId: !Ref EC2InternetGateway
+      RouteTableId: !Ref EC2RouteTablePublic
+
+  EC2EIP:
+    Type: "AWS::EC2::EIP"
+    Properties:
+      Domain: "vpc"
+      Tags:
+        - Key: "Name"
+          Value: "openvpn-onboarding-elastic-ip"
+
+  EC2NatGateway:
+    Type: "AWS::EC2::NatGateway"
+    Properties:
+      SubnetId: !Ref EC2SubnetPublic
+      Tags:
+        - Key: "Name"
+          Value: "openvpn-onboarding-nat-gw"
+      AllocationId: !GetAtt EC2EIP.AllocationId
+
+  EC2InternetGateway:
+    Type: "AWS::EC2::InternetGateway"
+    Properties:
+      Tags:
+        - Key: "Name"
+          Value: "openvpn-onboarding-igw"
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref EC2VPC
+      InternetGatewayId: !Ref EC2InternetGateway
+
+  EC2SecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "Security group for openvpn onboarding"
+      GroupName: "openvpn-onboarding-security-group"
+      VpcId: !Ref EC2VPC
+      SecurityGroupEgress:
+        - CidrIp: "0.0.0.0/0"
+          IpProtocol: "-1"
+
+  EC2SubnetRouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      RouteTableId: !Ref EC2RouteTablePrivate
+      SubnetId: !Ref EC2SubnetPrivate
+
+  EC2SubnetRouteTableAssociation2:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      RouteTableId: !Ref EC2RouteTablePublic
+      SubnetId: !Ref EC2SubnetPublic
+Outputs:
+  #=======================================================
+  #
+  #                 CloudFormation Outputs
+  #
+  #=======================================================
+  EC2SecurityGroupId:
+    Description: "Allow access for ssh and http port 8080"
+    Value:
+      Fn::GetAtt:
+        - "EC2SecurityGroup"
+        - "GroupId"
+  VPCPrivateSubnetId:
+    Description: "OpenVPN Private Subnet"
+    Value:
+      Fn::GetAtt:
+        - "EC2SubnetPrivate"
+        - "SubnetId"
+  VPCPrivateSubnetAvailabilityZone:
+    Description: "OpenVPN Private Subnet Availability Zone"
+    Value:
+      Fn::GetAtt:
+        - "EC2SubnetPrivate"
+        - "AvailabilityZone"
+  PublicIpAddress:
+    Description: "Public IP address assigned to this VPC"
+    Value: 
+      Fn::GetAtt:
+        - "EC2EIP"
+        - "PublicIp"

@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "jest.config.js",
+    ".eslintrc.js",
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "_warmup/**/*",
+    ".vscode/**/*"
+  ]
+}

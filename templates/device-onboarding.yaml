@@ -1,0 +1,116 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Create lambda to handle the SIM retrieval process"
+
+Parameters:
+  #=======================================================
+  #
+  #                   CloudFormation Parameters
+  #
+  #=======================================================
+  LambdaName:
+    Type: String
+    Default: "device-onboarding"
+    Description: Lambda name
+  S3LocalBucketArn:
+    Description: Arn for S3 bucket used to store the lambda code on customers account.
+    Type: String
+  S3LocalBucketName:
+    Description: Name of S3 bucket used to store the lambda code on customers account.
+    Type: String
+  DeviceOnboardingLambdaZipPath:
+    Description: Zip path for the compressed folder with the lambda code located in local S3.
+    Type: String
+  SimTableARN:
+    Description: Dynamo DB SIMs table ARN
+    Type: String
+  SimTableName:
+    Description: Dynamo DB SIMs table name
+    Type: String
+  AmazonRootCaURL:
+    Description: URL of Amazon Root Certifcate
+    Type: String
+    Default: "https://www.amazontrust.com/repository/AmazonRootCA1.pem"
+  IoTCoreEndpointURL:
+    Description: URL of IoT Core Endpoint
+    Type: String
+
+Resources:
+  #=======================================================
+  #
+  #                   Lambda resources
+  #
+  #=======================================================
+  LambdaDeviceOnboardingIAMRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      Path: "/"
+      RoleName: !Sub "${LambdaName}-role"
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      Policies:
+        - PolicyName: !Sub "sim-retrieval-policy-${AWS::Region}"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action: "dynamodb:GetItem"
+                Resource: !Ref "SimTableARN"
+              - Effect: Allow
+                Action:
+                  - 's3:GetObject'
+                  - 's3:ListBucket'
+                  - 's3:GetBucketPolicy'
+                  - 'S3:PutObjectTagging'
+                Resource:
+                  - !Join
+                    - ''
+                    - - !Ref S3LocalBucketArn
+                      - /*
+                  - !Ref S3LocalBucketArn
+
+  LambdaDeviceOnboardingFunction:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Timeout: 30
+      Description: Device Onboarding function
+      Environment:
+        Variables:
+          AMAZON_ROOTCA_URL: !Ref "AmazonRootCaURL"
+          SIMS_TABLE: !Ref "SimTableName"
+          IOT_CORE_ENDPOINT_URL: !Ref "IoTCoreEndpointURL"
+      FunctionName: !Ref "LambdaName"
+      Handler: "index.handler"
+      Architectures:
+        - "x86_64"
+      Code:
+        S3Bucket: !Ref "S3LocalBucketName"
+        S3Key: !Ref "DeviceOnboardingLambdaZipPath"
+      MemorySize: 128
+      Role: !GetAtt "LambdaDeviceOnboardingIAMRole.Arn"
+      Runtime: "nodejs14.x"
+      TracingConfig:
+        Mode: "PassThrough"
+      EphemeralStorage:
+        Size: 512
+    
+Outputs:
+  #=======================================================
+  #                                                       
+  #                      OUTPUTS                
+  #                                                       
+  #=======================================================
+  LambdaNameDeviceOnboarding:
+    Description: The name of the Device Onboarding lambda
+    Value: !Ref LambdaDeviceOnboardingFunction
+  LambdaARNDeviceOnboarding:
+    Description: Lambda ARN for Device Onboarding
+    Value: !GetAtt LambdaDeviceOnboardingFunction.Arn

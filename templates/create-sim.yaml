@@ -1,0 +1,147 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Create lambda to handle the process of create SIMs"
+
+Parameters:
+  #=======================================================
+  #
+  #                   CloudFormation Parameters
+  #
+  #=======================================================
+  LambdaName:
+    Type: String
+    Default: "create-sim"
+    Description: Lambda name
+  IotCorePolicyName:
+    Type: String
+    Description: Policy name
+  SnsFailureSummaryTopicARN:
+    Type: String
+    Description: SNS topic to post summary message on failure case
+  SnsSuccessSummaryTopicARN:
+    Type: String
+    Description: SNS topic to post summary message on success case
+  SimTableARN:
+    Description: DynamoDB ARN to store SIMs data.
+    Type: String
+    Default: ''
+  SimsTableName:
+    Type: String
+    Default: "sim-metastore"
+    Description: DynamoDB table name to store SIMs data
+  S3LocalBucketArn:
+    Description: Arn for S3 bucket used to store the lambda code on customers account.
+    Type: String
+  S3LocalBucketName:
+    Description: Name of S3 bucket used to store the lambda code on customers account.
+    Type: String
+  CreateSimLambdaZipPath:
+    Description: Zip path for the compressed folder with the lambda code located in local S3.
+    Type: String
+  SqsQueueARN:
+    Description: SQS queue ARN
+    Type: String
+
+Resources:
+  #=======================================================
+  #
+  #                   Lambda resources
+  #
+  #=======================================================
+  LambdaCreateSimIAMRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      Path: "/"
+      RoleName: !Sub "${LambdaName}-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      Policies:
+        - PolicyName: !Sub "create-sim-policy-${AWS::Region}"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                  - sqs:ChangeMessageVisibility
+                Resource: !Ref SqsQueueARN
+              - Effect: Allow
+                Action:
+                  - sns:Publish
+                Resource: 
+                  - !Ref SnsSuccessSummaryTopicARN
+                  - !Ref SnsFailureSummaryTopicARN
+              - Effect: "Allow"
+                Action: 
+                  - dynamodb:PutItem
+                Resource: !Ref SimTableARN
+              - Effect: Allow
+                Action:
+                  - iot:CreateKeysAndCertificate
+                  - iot:AttachPolicy
+                  - iot:CreateThing
+                  - iot:AttachThingPrincipal
+                  - iot:Publish
+                  - iot:DeleteThing
+                  - iot:DeleteCertificate
+                  - iot:UpdateCertificate
+                  - iot:DetachThingPrincipal
+                  - iot:DetachPolicy
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - 's3:GetObject'
+                  - 's3:ListBucket'
+                  - 's3:GetBucketPolicy'
+                  - 'S3:PutObjectTagging'
+                Resource:
+                  - !Join
+                    - ''
+                    - - !Ref S3LocalBucketArn
+                      - /*
+                  - !Ref S3LocalBucketArn
+
+  LambdaCreateSimFunction:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Description: Create SIMs in database and IoT Core
+      Environment:
+        Variables:
+          IOT_CORE_POLICY_NAME: !Ref "IotCorePolicyName"
+          SNS_FAILURE_SUMMARY_TOPIC: !Ref "SnsFailureSummaryTopicARN"
+          SNS_SUCCESS_SUMMARY_TOPIC: !Ref "SnsSuccessSummaryTopicARN"
+          SIMS_TABLE: !Ref "SimsTableName"
+      FunctionName: !Ref "LambdaName"
+      Handler: "index.handler"
+      ## Reserve dedicated lambda executions to prevent IoT Core Throttling issues
+      ReservedConcurrentExecutions: 5
+      Architectures:
+        - "x86_64"
+      Code:
+        S3Bucket: !Ref "S3LocalBucketName"
+        S3Key: !Ref "CreateSimLambdaZipPath"
+      MemorySize: 128
+      Role: !GetAtt "LambdaCreateSimIAMRole.Arn"
+      Runtime: "nodejs14.x"
+      TracingConfig:
+        Mode: "PassThrough"
+      EphemeralStorage:
+        Size: 512
+  
+  LambdaCreateSimFunctionEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 1
+      Enabled: true
+      EventSourceArn: !Ref SqsQueueARN
+      FunctionName: !Ref LambdaName
+    DependsOn: LambdaCreateSimFunction
