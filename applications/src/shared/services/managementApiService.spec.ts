@@ -15,11 +15,13 @@ const mockGetAxios = mocked(axios.get);
 const mockRetrieveJSONSecret = mocked(retrieveJSONSecret);
 console.log = jest.fn();
 console.error = jest.fn();
+const mockDate = new Date("2022-04-02T09:00:00.000Z");
 
 describe("Management API Service", () => {
   beforeAll(() => {
-    jest.useFakeTimers();
-    jest.setSystemTime(new Date(2023, 1, 1));
+    jest.useFakeTimers({
+      now: mockDate.getTime(),
+    });
   });
 
   afterAll(() => {

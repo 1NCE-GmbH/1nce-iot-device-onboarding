@@ -10,9 +10,11 @@ import { IoTCoreThing } from "../shared/types/iotCoreThing";
 import { publishErrorToSnsTopic } from "../shared/services/errorHandlingService";
 import { deleteIotCertificate, deleteIotThing } from "../shared/services/iotCoreService";
 import { publishRegistrationToMqtt, publishSuccessSummaryToSns } from "../shared/services/successMessageService";
+import { parseSimRetrievalSqsBody } from "../shared/utils/sqsHelper";
 
 const SIMS_TABLE = process.env.SIMS_TABLE as string;
 const IOT_CORE_POLICY_NAME = process.env.IOT_CORE_POLICY_NAME as string;
+const SUCCESS_SUMMARY_MESSAGE = "SIM enabled";
 
 export const handler = async (event: SQSEvent): Promise<void> => {
   await Promise.allSettled(
@@ -21,35 +23,27 @@ export const handler = async (event: SQSEvent): Promise<void> => {
 };
 
 async function handleSQSRecord(record: SQSRecord): Promise<void> {
-  const body = parseRecordBody(record);
-  const sim = new SIM(body);
-
-  const simCreated = await createSim(sim);
-  if (!simCreated) {
-    console.error("FAILURE device not created", body);
-    return;
-  }
-
-  console.log("SUCCESS device created", body);
-}
-
-function parseRecordBody(record: SQSRecord): any {
-  try {
-    return JSON.parse(record.body);
-  } catch (error) {
-    console.error(`error parsing SQS record body: ${record.body}`, error);
-  }
-}
-
-async function createSim(sim: SIM): Promise<boolean> {
   let iotCoreCertificate: IoTCoreCertificate | undefined;
   let iotCoreThing: IoTCoreThing | undefined;
+  let sim: SIM | undefined;
 
   try {
-    // Generate new certificate and attach it to policy
+    const body = parseSimRetrievalSqsBody(record);
+
+    // Generate new certificate
     iotCoreCertificate = await IoTCoreCertificate.create();
+
+    // Create SIM instance
+    sim = new SIM({
+      iccid: body.iccid,
+      ip: body.ip,
+      active: true,
+      certificate: iotCoreCertificate.certificate,
+      privateKey: iotCoreCertificate.privateKey,
+    });
+
+    // Attach policy to certificate
     await iotCoreCertificate.attachPolicy(IOT_CORE_POLICY_NAME);
-    sim.setCertificate(iotCoreCertificate);
 
     // Create thing and attach it to certificate
     iotCoreThing = await IoTCoreThing.create(sim.iccid);
@@ -60,18 +54,17 @@ async function createSim(sim: SIM): Promise<boolean> {
 
     // Publish MQTT and SNS messages
     await Promise.allSettled([
-      publishRegistrationToMqtt(sim),
-      publishSuccessSummaryToSns(sim),
+      publishRegistrationToMqtt(sim, SUCCESS_SUMMARY_MESSAGE),
+      publishSuccessSummaryToSns(sim, SUCCESS_SUMMARY_MESSAGE),
     ]);
 
-    return true;
+    console.log("SUCCESS SIM created", sim);
   } catch (error: unknown) {
-    console.error("Error creating SIM", error);
-    await publishErrorToSnsTopic(error, sim);
+    console.error("FAILURE SIM not created", error, sim ?? record);
+
+    await publishErrorToSnsTopic("SIM enable failed", error, sim);
 
     await deleteIoTCoreResources(iotCoreThing, iotCoreCertificate);
-
-    return false;
   }
 }
 

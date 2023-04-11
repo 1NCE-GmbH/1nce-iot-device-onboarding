@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Create API Gateway resource"
+Description: Create API Gateway resource
 
 Parameters:
   #=======================================================
@@ -21,9 +21,9 @@ Parameters:
 
   LambdaNameDeviceOnboarding:
     Type: String
-    Default: "device-onboarding"
+    Default: device-onboarding
     Description: Lambda name for Device Onboarding
-  
+
   LambdaARNDeviceOnboarding:
     Type: String
     Description: Lambda ARN for Device Onboarding
@@ -42,109 +42,130 @@ Resources:
     Type: AWS::ApiGateway::RestApi
     Properties:
       Name: device-onboarding-api
-      Description: "Provides Rest API endpoints for device onboarding service"
+      Description: Provides Rest API endpoints for device onboarding service
       EndpointConfiguration:
         Types:
           - EDGE
       Policy:
         Version: "2012-10-17"
         Statement:
-          - Effect: "Allow"
+          - Effect: Allow
             Principal: "*"
-            Action: "execute-api:Invoke"
-            Resource: "execute-api:/*"
+            Action: execute-api:Invoke
+            Resource: execute-api:/*
             Condition:
               IpAddress:
-                aws:SourceIp: 
-                  - !Sub "${PublicIpAddress}/32"
-
+                aws:SourceIp:
+                  - Fn::Sub: ${PublicIpAddress}/32
 
   ApiGatewayResourceOnboarding:
     Type: AWS::ApiGateway::Resource
     Properties:
-      ParentId: !GetAtt
-        - ApiGatewayRestApi
-        - RootResourceId
-      RestApiId: !Ref ApiGatewayRestApi
-      PathPart: !Ref SimOnboardingPath
+      ParentId:
+        Fn::GetAtt:
+          - ApiGatewayRestApi
+          - RootResourceId
+      RestApiId:
+        Ref: ApiGatewayRestApi
+      PathPart:
+        Ref: SimOnboardingPath
 
   ApiGatewayGetDeviceOnboardingMethod:
-    Type: "AWS::ApiGateway::Method"
+    Type: AWS::ApiGateway::Method
     Properties:
-      RestApiId: !Ref ApiGatewayRestApi
-      ResourceId: !Ref ApiGatewayResourceOnboarding
-      HttpMethod: "GET"
-      AuthorizationType: "NONE"
+      RestApiId:
+        Ref: ApiGatewayRestApi
+      ResourceId:
+        Ref: ApiGatewayResourceOnboarding
+      HttpMethod: GET
+      AuthorizationType: NONE
       ApiKeyRequired: true
       MethodResponses:
         - ResponseModels: {}
-          StatusCode: "200"
+          StatusCode: 200
       Integration:
-        CacheNamespace: !Ref ApiGatewayResourceOnboarding
-        IntegrationHttpMethod: "POST"
+        CacheNamespace:
+          Ref: ApiGatewayResourceOnboarding
+        IntegrationHttpMethod: POST
         IntegrationResponses:
-          - SelectionPattern: ".*"
-            StatusCode: "200"
-        PassthroughBehavior: "WHEN_NO_MATCH"
+          - SelectionPattern: .*
+            StatusCode: 200
+        PassthroughBehavior: WHEN_NO_MATCH
         TimeoutInMillis: 29000
-        Type: "AWS_PROXY"
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${LambdaNameDeviceOnboarding}/invocations"
+        Type: AWS_PROXY
+        Uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${LambdaNameDeviceOnboarding}/invocations
 
   ApiGatewayLambdaInvokePermission:
     Type: AWS::Lambda::Permission
     Properties:
-      FunctionName: !Ref LambdaARNDeviceOnboarding
+      FunctionName:
+        Ref: LambdaARNDeviceOnboarding
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
-      SourceAccount: !Ref "AWS::AccountId"
-      SourceArn: !Sub "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestApi}/*/*"
+      SourceAccount:
+        Ref: AWS::AccountId
+      SourceArn:
+        Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestApi}/*/*
 
   ApiGatewayDeployment:
-    Type: "AWS::ApiGateway::Deployment"
-    DependsOn : ApiGatewayGetDeviceOnboardingMethod
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: ApiGatewayGetDeviceOnboardingMethod
     Properties:
-      RestApiId: !Ref ApiGatewayRestApi
-      Description: "API Gateway deployment for Device Onboarding"
+      RestApiId:
+        Ref: ApiGatewayRestApi
+      Description: API Gateway deployment for Device Onboarding
 
   ApiGatewayStage:
-    Type: "AWS::ApiGateway::Stage"
+    Type: AWS::ApiGateway::Stage
     Properties:
-      StageName: !Ref APIGatewayStageName
-      DeploymentId: !Ref ApiGatewayDeployment
-      RestApiId: !Ref ApiGatewayRestApi
-      Description: "API Gateway deployment stage for Device Onboarding"
+      StageName:
+        Ref: APIGatewayStageName
+      DeploymentId:
+        Ref: ApiGatewayDeployment
+      RestApiId:
+        Ref: ApiGatewayRestApi
+      Description: API Gateway deployment stage for Device Onboarding
       CacheClusterEnabled: false
       TracingEnabled: true
 
   ApiGatewayUsagePlan:
-    Type: "AWS::ApiGateway::UsagePlan"
+    Type: AWS::ApiGateway::UsagePlan
     Properties:
-      UsagePlanName: "device-onboarding-usage-plan"
-      Description: "Usage plan for Api Gateway of Device Onboarding"
+      UsagePlanName: device-onboarding-usage-plan
+      Description: Usage plan for Api Gateway of Device Onboarding
       ApiStages:
-        - ApiId: !Ref ApiGatewayRestApi
-          Stage: !Ref ApiGatewayStage
+        - ApiId:
+            Ref: ApiGatewayRestApi
+          Stage:
+            Ref: ApiGatewayStage
 
   ApiGatewayApiKey:
-    Type: "AWS::ApiGateway::ApiKey"
+    Type: AWS::ApiGateway::ApiKey
     Properties:
-      Description: "API key for Device Onboarding API Gateway"
+      Description: API key for Device Onboarding API Gateway
       Enabled: true
-      Name: !Ref OnboardingApiKeyName
+      Name:
+        Ref: OnboardingApiKeyName
 
   ApiGatewayUsagePlanKey:
-    Type: "AWS::ApiGateway::UsagePlanKey"
+    Type: AWS::ApiGateway::UsagePlanKey
     Properties:
-      KeyId: !GetAtt ApiGatewayApiKey.APIKeyId
-      KeyType: "API_KEY"
-      UsagePlanId: !Ref ApiGatewayUsagePlan
+      KeyId:
+        Fn::GetAtt:
+          - ApiGatewayApiKey
+          - APIKeyId
+      KeyType: API_KEY
+      UsagePlanId:
+        Ref: ApiGatewayUsagePlan
 
 Outputs:
   #=======================================================
-  #                                                       
-  #                      OUTPUTS                
-  #                                                       
+  #
+  #                 CloudFormation Outputs
+  #
   #=======================================================
-  OnboardingEndpointUrl:
-    Description: URL for Device Onboarding endpoint in API Gateway
-    Value: !Sub "https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/${APIGatewayStageName}/${SimOnboardingPath}"
+  ApiGatewayUrl:
+    Description: URL for API Gateway
+    Value:
+      Fn::Sub: https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com

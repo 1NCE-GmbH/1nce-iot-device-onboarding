@@ -3,7 +3,7 @@ import { publishToSnsTopic } from "../utils/snsHelper";
 
 const SNS_FAILURE_SUMMARY_TOPIC = process.env.SNS_FAILURE_SUMMARY_TOPIC as string;
 
-export async function publishErrorToSnsTopic(error: unknown, sim?: SIM): Promise<void> {
+export async function publishErrorToSnsTopic(description: string, error: unknown, sim?: SIM): Promise<void> {
   try {
     const errorMessage = error instanceof Error ? error.message : error as string;
     let snsMessage = {
@@ -12,7 +12,7 @@ export async function publishErrorToSnsTopic(error: unknown, sim?: SIM): Promise
     };
 
     if (sim) {
-      snsMessage = sim.toMessage(errorMessage);
+      snsMessage = sim.toMessage(`${description}. Error: ${errorMessage}`);
     }
 
     console.log("Sending error message to SNS topic", snsMessage);

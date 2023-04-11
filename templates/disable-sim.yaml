@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Create lambda to handle the process of create SIMs
+Description: Create lambda to handle the process of disable SIMs
 
 Parameters:
   #=======================================================
@@ -9,11 +9,8 @@ Parameters:
   #=======================================================
   LambdaName:
     Type: String
-    Default: create-sim
+    Default: disable-sim
     Description: Lambda name
-  IotCorePolicyName:
-    Type: String
-    Description: Policy name
   SnsFailureSummaryTopicARN:
     Type: String
     Description: SNS topic to post summary message on failure case
@@ -33,7 +30,7 @@ Parameters:
   S3LocalBucketName:
     Description: Name of S3 bucket used to store the lambda code on customers account.
     Type: String
-  CreateSimLambdaZipPath:
+  DisableSimLambdaZipPath:
     Description: Zip path for the compressed folder with the lambda code located in local S3.
     Type: String
   SqsQueueARN:
@@ -46,12 +43,12 @@ Resources:
   #                   Lambda resources
   #
   #=======================================================
-  LambdaCreateSimIAMRole:
+  LambdaDisableSimIAMRole:
     Type: AWS::IAM::Role
     Properties:
       Path: /
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: 2012-10-17
         Statement:
           - Effect: Allow
             Principal:
@@ -62,9 +59,9 @@ Resources:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
         - PolicyName:
-            Fn::Sub: create-sim-policy-${AWS::Region}
+            Fn::Sub: disable-sim-policy-${AWS::Region}
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: 2012-10-17
             Statement:
               - Effect: Allow
                 Action:
@@ -82,22 +79,9 @@ Resources:
                   - Ref: SnsFailureSummaryTopicARN
               - Effect: Allow
                 Action:
-                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
                 Resource:
                   Ref: SimTableARN
-              - Effect: Allow
-                Action:
-                  - iot:CreateKeysAndCertificate
-                  - iot:AttachPolicy
-                  - iot:CreateThing
-                  - iot:AttachThingPrincipal
-                  - iot:Publish
-                  - iot:DeleteThing
-                  - iot:DeleteCertificate
-                  - iot:UpdateCertificate
-                  - iot:DetachThingPrincipal
-                  - iot:DetachPolicy
-                Resource: "*"
               - Effect: Allow
                 Action:
                   - s3:GetObject
@@ -108,14 +92,12 @@ Resources:
                   - Fn::Sub: ${S3LocalBucketArn}/*
                   - Ref: S3LocalBucketArn
 
-  LambdaCreateSimFunction:
+  LambdaDisableSimFunction:
     Type: AWS::Lambda::Function
     Properties:
-      Description: Create SIMs in database and IoT Core
+      Description: Disable SIMs in database
       Environment:
         Variables:
-          IOT_CORE_POLICY_NAME:
-            Ref: IotCorePolicyName
           SNS_FAILURE_SUMMARY_TOPIC:
             Ref: SnsFailureSummaryTopicARN
           SNS_SUCCESS_SUMMARY_TOPIC:
@@ -125,19 +107,17 @@ Resources:
       FunctionName:
         Ref: LambdaName
       Handler: index.handler
-      ## Reserve dedicated lambda executions to prevent IoT Core Throttling issues
-      ReservedConcurrentExecutions: 5
       Architectures:
         - x86_64
       Code:
         S3Bucket:
           Ref: S3LocalBucketName
         S3Key:
-          Ref: CreateSimLambdaZipPath
+          Ref: DisableSimLambdaZipPath
       MemorySize: 128
       Role:
         Fn::GetAtt:
-          - LambdaCreateSimIAMRole
+          - LambdaDisableSimIAMRole
           - Arn
       Runtime: nodejs14.x
       TracingConfig:
@@ -145,13 +125,13 @@ Resources:
       EphemeralStorage:
         Size: 512
 
-  LambdaCreateSimFunctionEventSourceMapping:
+  LambdaDisableSimFunctionEventSourceMapping:
     Type: AWS::Lambda::EventSourceMapping
     Properties:
-      BatchSize: 1
+      BatchSize: 10
       Enabled: true
       EventSourceArn:
         Ref: SqsQueueARN
       FunctionName:
         Ref: LambdaName
-    DependsOn: LambdaCreateSimFunction
+    DependsOn: LambdaDisableSimFunction

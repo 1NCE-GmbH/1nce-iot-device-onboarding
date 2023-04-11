@@ -6,11 +6,11 @@ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip
 unzip awscliv2.zip
 ./aws/install
 # Get breakout region
-breakout_region=$(aws ssm get-parameter --name breakout-region | jq -r '.Parameter.Value')
+breakout_region=$(aws ssm get-parameter --name replace_with_ssm_param_name_to_breakout_region | jq -r '.Parameter.Value')
 # Download and save OpenVPN configuration according to breakout region
-curl https://device-onboarding-prod-cloudformation-templates.s3.eu-central-1.amazonaws.com/V1.0.0/vpnConfig/$breakout_region.conf -o /etc/openvpn/openvpn-1nce-client.conf
+curl https://replace_with_code_bucket_name.s3.replace_with_code_bucket_region_name.amazonaws.com/replace_with_version/openVpnConfig/$breakout_region.conf -o /etc/openvpn/openvpn-1nce-client.conf
 # Get and Save OpenVPN credentials file
-openvpn_credentials=$(aws secretsmanager get-secret-value --secret-id open-source-device-onboarding-openvpn-credentials | jq -r '.SecretString')
+openvpn_credentials=$(aws secretsmanager get-secret-value --secret-id replace_with_secret_name_to_openvpn_creds | jq -r '.SecretString')
 echo -e "$(echo $openvpn_credentials | jq -r '.username')\n$(echo $openvpn_credentials | jq -r '.password')" > /etc/openvpn/credentials.txt
 # Start OpenVPN as a service
 sudo systemctl start openvpn@openvpn-1nce-client
@@ -31,14 +31,15 @@ ip_uncut=`ifconfig $ifc | grep -i netmask`
 ip_endcut=${ip_uncut#*inet}
 ip=${ip_endcut%  netmask*}
 # Store OpenVPN tunnel ip address in SSM
-aws ssm put-parameter --name openvpn-onboarding-proxy-server --value "$ip:8080" --type String --overwrite
+onboarding_path=$(aws ssm get-parameter --name replace_with_ssm_param_name_to_onboarding_path | jq -r '.Parameter.Value')
+aws ssm put-parameter --name replace_with_ssm_param_name_to_proxy_server --value "$ip:replace_with_nginx_port/$onboarding_path" --type String --overwrite
 # Get and export Nginx config as env variables
-export ONBOARDING_ENDPOINT=$(aws ssm get-parameter --name openvpn-onboarding-api-endpoint | jq -r '.Parameter.Value')
-export ONBOARDING_X_API_KEY=$(aws apigateway get-api-keys --name-query device-onboarding-key --include-values | jq -r '.items[0].value')
-export NGINX_PORT=8080
+export ONBOARDING_ENDPOINT=$(aws ssm get-parameter --name replace_with_ssm_param_name_to_api_gateway_url | jq -r '.Parameter.Value')
+export ONBOARDING_X_API_KEY=$(aws apigateway get-api-keys --name-query replace_with_onboarding_api_key_name --include-values | jq -r '.items[0].value')
+export NGINX_PORT=replace_with_nginx_port
 export DOLLAR="$" # needed to escape nginx built-in env variables
 # Download Nginx template and set the server
-curl https://device-onboarding-prod-cloudformation-templates.s3.eu-central-1.amazonaws.com/V1.0.0/nginxConfig/nginx.conf -o /etc/nginx/conf.d/my-template.conf.template
+curl https://replace_with_code_bucket_name.s3.replace_with_code_bucket_region_name.amazonaws.com/replace_with_version/nginxConfig/nginx.conf -o /etc/nginx/conf.d/my-template.conf.template
 envsubst < /etc/nginx/conf.d/my-template.conf.template > /etc/nginx/sites-available/default
 sudo chmod 644 /etc/nginx/sites-available/default
 # Run Nginx server as a service

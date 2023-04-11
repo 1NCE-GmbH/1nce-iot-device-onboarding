@@ -1,17 +1,23 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "SSM parameters for openvpn onboarding"
+Description: SSM parameters for openvpn onboarding
 Parameters:
   #=======================================================
   #
   #                   CloudFormation Parameters
   #
   #=======================================================
-  OnboardingEndpointUrl:
+  ApiGatewayUrl:
     Type: String
-    Description: Onboarding Endpoint URL
-  ApiEndpointSSMParamName:
-    Type: String 
-    Description: Name of the SSM Param where api endpoint is stored
+    Description: API gateway URL
+  ApiGatewayUrlSSMParamName:
+    Type: String
+    Description: Name of the SSM Param where api gateway URL is stored
+  OnboardingPath:
+    Type: String
+    Description: API gateway onboarding path
+  OnboardingPathSSMParamName:
+    Type: String
+    Description: Name of the SSM Param where onboarding path is stored
   ProxyServerSSMParamName:
     Type: String
     Description: Name of the SSM Param where proxy server address is stored
@@ -28,30 +34,46 @@ Resources:
   #
   #=======================================================
   SSMParameterApiEndpoint:
-    Type: "AWS::SSM::Parameter"
+    Type: AWS::SSM::Parameter
     Properties:
-      Name: !Ref ApiEndpointSSMParamName
-      Type: "String"
-      Value: !Ref "OnboardingEndpointUrl"
-      DataType: "text"
-      Tier: "Standard"
+      Name:
+        Ref: ApiGatewayUrlSSMParamName
+      Type: String
+      Value:
+        Ref: ApiGatewayUrl
+      DataType: text
+      Tier: Standard
+
+  SSMParameterOnboardingEndpoint:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name:
+        Ref: OnboardingPathSSMParamName
+      Type: String
+      Value:
+        Ref: OnboardingPath
+      DataType: text
+      Tier: Standard
 
   SSMParameterProxyServer:
-    Type: "AWS::SSM::Parameter"
+    Type: AWS::SSM::Parameter
     Properties:
-      Name: !Ref ProxyServerSSMParamName
-      Type: "String"
-      Value: "placeholder"
-      DataType: "text"
-      Description: "Onboarding proxy server"
-      Tier: "Standard"
+      Name:
+        Ref: ProxyServerSSMParamName
+      Type: String
+      Value: placeholder
+      DataType: text
+      Description: Onboarding proxy server
+      Tier: Standard
 
   SSMParameterBreakoutRegion:
-    Type: "AWS::SSM::Parameter"
+    Type: AWS::SSM::Parameter
     Properties:
-      Name: !Ref BreakoutRegionSSMParamName
-      Type: "String"
-      Value: !Ref BreakoutRegion
-      DataType: "text"
-      Description: "Breakout Region in 1NCE Portal"
-      Tier: "Standard"
+      Name:
+        Ref: BreakoutRegionSSMParamName
+      Type: String
+      Value:
+        Ref: BreakoutRegion
+      DataType: text
+      Description: Breakout Region in 1NCE Portal
+      Tier: Standard

@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "SNS topics for openvpn onboarding notifications"
+Description: SNS topics for openvpn onboarding notifications
 Resources:
   #=======================================================
   #
@@ -7,23 +7,23 @@ Resources:
   #
   #=======================================================
   SNSFailureTopic:
-    Type: "AWS::SNS::Topic"
+    Type: AWS::SNS::Topic
     Properties:
-      TopicName: "onboarding-failure"
+      TopicName: onboarding-failure
 
   SNSSuccessTopic:
-    Type: "AWS::SNS::Topic"
+    Type: AWS::SNS::Topic
     Properties:
-      TopicName: "onboarding-success"
+      TopicName: onboarding-success
 
   SNSTopicPolicy:
-    Type: "AWS::SNS::TopicPolicy"
+    Type: AWS::SNS::TopicPolicy
     Properties:
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
-          - Effect: "Allow"
-            Sid: "SNS Failure Topic Sid"
+          - Effect: Allow
+            Sid: SNS Failure Topic Sid
             Action:
               - SNS:GetTopicAttributes
               - SNS:SetTopicAttributes
@@ -34,14 +34,16 @@ Resources:
               - SNS:ListSubscriptionsByTopic
               - SNS:Publish
             Principal:
-              AWS: !Sub "${AWS::AccountId}"
+              AWS:
+                Fn::Sub: ${AWS::AccountId}
             Resource:
-              - !Ref SNSFailureTopic
+              - Ref: SNSFailureTopic
             Condition:
               StringEquals:
-                AWS:SourceOwner: !Sub "${AWS::AccountId}"
-          - Effect: "Allow"
-            Sid: "SNS Success Topic Sid"
+                AWS:SourceOwner:
+                  Fn::Sub: ${AWS::AccountId}
+          - Effect: Allow
+            Sid: SNS Success Topic Sid
             Action:
               - SNS:GetTopicAttributes
               - SNS:SetTopicAttributes
@@ -52,42 +54,44 @@ Resources:
               - SNS:ListSubscriptionsByTopic
               - SNS:Publish
             Principal:
-              AWS: !Sub "${AWS::AccountId}"
+              AWS:
+                Fn::Sub: ${AWS::AccountId}
             Resource:
-              - !Ref SNSSuccessTopic
+              - Ref: SNSSuccessTopic
             Condition:
               StringEquals:
-                AWS:SourceOwner: !Sub "${AWS::AccountId}"
+                AWS:SourceOwner:
+                  Fn::Sub: ${AWS::AccountId}
       Topics:
-        - !Ref SNSFailureTopic
-        - !Ref SNSSuccessTopic
+        - Ref: SNSFailureTopic
+        - Ref: SNSSuccessTopic
 Outputs:
   #=======================================================
   #
-  #             SNS Outputs
+  #                 CloudFormation Outputs
   #
   #=======================================================
   SNSFailureTopicArn:
     Description: Arn for SNS where the onboarding failures will be published
     Value:
       Fn::GetAtt:
-        - "SNSFailureTopic"
-        - "TopicArn"
+        - SNSFailureTopic
+        - TopicArn
   SNSSuccessTopicArn:
     Description: Arn for SNS where the onboarding success events will be published
     Value:
       Fn::GetAtt:
-        - "SNSSuccessTopic"
-        - "TopicArn"
+        - SNSSuccessTopic
+        - TopicArn
   SNSFailureTopicName:
     Description: Name for SNS where the onboarding failures will be published
     Value:
       Fn::GetAtt:
-        - "SNSFailureTopic"
-        - "TopicName"
+        - SNSFailureTopic
+        - TopicName
   SNSSuccessTopicName:
     Description: Name for SNS where the onboarding success events will be published
     Value:
       Fn::GetAtt:
-        - "SNSSuccessTopic"
-        - "TopicName"
+        - SNSSuccessTopic
+        - TopicName

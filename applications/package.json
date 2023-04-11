@@ -10,7 +10,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "zip:lambda": "cd dist/${LAMBDA} && zip ${LAMBDA}.zip index.js",
-    "zip:all": "LAMBDA=sim-retrieval npm run zip:lambda && LAMBDA=device-onboarding npm run zip:lambda && LAMBDA=create-sim npm run zip:lambda"
+    "zip:all": "LAMBDA=sim-retrieval npm run zip:lambda && LAMBDA=device-onboarding npm run zip:lambda && LAMBDA=create-sim npm run zip:lambda && LAMBDA=disable-sim npm run zip:lambda"
   },
   "author": "",
   "license": "ISC",

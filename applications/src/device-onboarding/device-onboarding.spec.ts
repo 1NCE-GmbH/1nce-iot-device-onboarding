@@ -19,16 +19,6 @@ const mockGetDbSimByIp = mocked(getDbSimByIp);
 const axiosGet = jest.spyOn(axios, "get");
 
 describe("Device Onboarding", () => {
-  beforeAll(() => {
-    jest.useFakeTimers();
-  });
-
-  afterAll(() => {});
-
-  beforeEach(() => {
-    jest.resetAllMocks();
-  });
-
   describe("handler", () => {
     describe("When IP_HEADER is missing in the event", () => {
       it("should throw 500 error", async () => {

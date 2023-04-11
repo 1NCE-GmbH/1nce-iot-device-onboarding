@@ -4,8 +4,6 @@ import { publishToSnsTopic } from "../utils/snsHelper";
 
 console.log = jest.fn();
 
-process.env.SIM_DELETE_QUEUE_URL = "SIM_DELETE_QUEUE_URL";
-
 describe("SNS Helper", () => {
   const SNSClientMock = mockClient(SNSClient);
 

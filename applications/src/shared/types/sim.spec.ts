@@ -1,18 +1,18 @@
-import { IoTCoreCertificate } from "./iotCoreCertificate";
 import { fromItem, keyFromIp, SIM } from "./sim";
 
 console.log = jest.fn();
 console.error = jest.fn();
+const mockDate = new Date("2022-04-02T09:00:00.000Z");
 
 describe("SIM", () => {
   const sim: SIM = new SIM({
     iccid: "123456789",
     ip: "10.0.0.0",
-    createdTime: new Date(2023, 1, 1).toISOString(),
-    updatedTime: new Date(2023, 1, 1).toISOString(),
+    createdTime: mockDate.toISOString(),
+    updatedTime: mockDate.toISOString(),
     active: true,
-    certificate: "certificate",
-    privateKey: "private_key",
+    certificate: "pem",
+    privateKey: "private-key",
   });
 
   const dynamoDbSimItem = {
@@ -28,8 +28,9 @@ describe("SIM", () => {
   };
 
   beforeAll(() => {
-    jest.useFakeTimers();
-    jest.setSystemTime(new Date(2022, 3, 2, 10));
+    jest.useFakeTimers({
+      now: mockDate.getTime(),
+    });
   });
 
   afterAll(() => {
@@ -52,8 +53,8 @@ describe("SIM", () => {
 
       expect(result.iccid).toEqual("123456789");
       expect(result.ip).toEqual("10.0.0.0");
-      expect(result.createdTime).toEqual(new Date(2022, 3, 2, 10));
-      expect(result.updatedTime).toEqual(new Date(2022, 3, 2, 10));
+      expect(result.createdTime).toEqual(mockDate);
+      expect(result.updatedTime).toEqual(mockDate);
     });
 
     it("should build and return SIM instance with defined created/updated times", async () => {
@@ -90,24 +91,8 @@ describe("SIM", () => {
     });
   });
 
-  describe("setCertificate", () => {
-    it("should set a new certificate", () => {
-      const certificate = new IoTCoreCertificate({
-        id: "id",
-        arn: "arn",
-        pem: "pem",
-        privateKey: "private-key",
-      });
-
-      sim.setCertificate(certificate);
-
-      expect(sim.certificate).toStrictEqual("pem");
-      expect(sim.privateKey).toStrictEqual("private-key");
-    });
-  });
-
   describe("toItem", () => {
-    it("should set a new certificate", () => {
+    it("should build dynamo item", () => {
       const result = sim.toItem();
 
       expect(result).toStrictEqual({
@@ -115,8 +100,8 @@ describe("SIM", () => {
         SK: "P#MQTT",
         a: true,
         crt: "pem",
-        ct: "2023-02-01T00:00:00.000Z",
-        ut: "2023-02-01T00:00:00.000Z",
+        ct: mockDate.toISOString(),
+        ut: mockDate.toISOString(),
         i: "123456789",
         ip: "10.0.0.0",
         prk: "private-key",
@@ -125,14 +110,14 @@ describe("SIM", () => {
   });
 
   describe("toMessage", () => {
-    it("should set a new certificate", () => {
+    it("should build SIM message", () => {
       const result = sim.toMessage("message");
 
       expect(result).toStrictEqual({
         iccid: "123456789",
         ip: "10.0.0.0",
         message: "message",
-        timestamp: 1675209600000,
+        timestamp: mockDate.getTime(),
       });
     });
   });

@@ -1,6 +1,5 @@
 import { type AttributeValue } from "@aws-sdk/client-dynamodb";
 import { type SendMessageBatchRequestEntry } from "@aws-sdk/client-sqs";
-import { type IoTCoreCertificate } from "./iotCoreCertificate";
 import { type IDynamoItem } from "./common";
 
 export const SQS_MESSAGE_GROUP_ID = "sims";
@@ -22,11 +21,6 @@ export class SIM {
     this.active = sim.active;
     this.certificate = sim.certificate;
     this.privateKey = sim.privateKey;
-  }
-
-  setCertificate(certificate: IoTCoreCertificate): void {
-    this.certificate = certificate.certificate;
-    this.privateKey = certificate.privateKey;
   }
 
   buildSqsMessageEntry(): SendMessageBatchRequestEntry {
@@ -51,7 +45,7 @@ export class SIM {
       ut: this.updatedTime.toISOString(),
       i: this.iccid,
       ip: this.ip,
-      a: true,
+      a: this.active,
     };
 
     return item;
