@@ -6,6 +6,7 @@ module.exports = {
     ["sim-retrieval"]: "./src/sim-retrieval/sim-retrieval.ts",
     ["create-sim"]: "./src/create-sim/create-sim.ts",
     ["device-onboarding"]: "./src/device-onboarding/device-onboarding.ts",
+    ["disable-sim"]: "./src/disable-sim/disable-sim.ts",
   },
   target: "node",
   output: {
@@ -32,4 +33,5 @@ module.exports = {
     protectWebpackAssets: false,
     cleanAfterEveryBuildPatterns: ['**/*.LICENSE.txt'],
   })],
+  stats: 'errors-only',
 };

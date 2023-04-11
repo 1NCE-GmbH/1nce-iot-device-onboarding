@@ -1,8 +1,3 @@
-# SIM Retrieval Service
-
-## Description
-The responsibility of this service is to retrieve all customer SIM cards through the management API, compare the results with the open source project database and create SQS events for the new and removed SIMs.
-
 ## Requirements
 - `zip` command - used to compress code to upload to AWS Lambda
 ```
@@ -14,13 +9,13 @@ brew install zip
 ```
 
 ## Environment variables
-| Name                                  | Description                                   | Example                                                   |
-| ------------------------------------- | --------------------------------------------- | --------------------------------------------------------- |
-| MANAGEMENT_API_URL                    | 1nce management API URL                       | https://api-prod.1nce.com/management-api                  |
-| MANAGEMENT_API_CREDENTIALS_SECRET_ARN | ID of secret with API credentials             | arn:aws:secretsmanager:REGION:ACCOUNT-ID:secret:ID        |
-| SIMS_TABLE                            | Table used to store SIMs data                 | sim-metastore                                             |
-| SIM_CREATE_QUEUE_URL                  | SQS queue URL to upload new SIMs data         | https://sqs.REGION.amazonaws.com/ACCOUNT/sims-create.fifo |
-| SIM_DELETE_QUEUE_URL                  | SQS queue URL to upload deleted SIMs data     | https://sqs.REGION.amazonaws.com/ACCOUNT/sims-delete.fifo |
+| Name                                  | Description                                   | Example                                                    |
+| ------------------------------------- | --------------------------------------------- | ---------------------------------------------------------- |
+| MANAGEMENT_API_URL                    | 1nce management API URL                       | https://api-prod.1nce.com/management-api                   |
+| MANAGEMENT_API_CREDENTIALS_SECRET_ARN | ID of secret with API credentials             | arn:aws:secretsmanager:REGION:ACCOUNT-ID:secret:ID         |
+| SIMS_TABLE                            | Table used to store SIMs data                 | sim-metastore                                              |
+| SIM_CREATE_QUEUE_URL                  | SQS queue URL to upload new SIMs data         | https://sqs.REGION.amazonaws.com/ACCOUNT/sims-create.fifo  |
+| SIM_DISABLE_QUEUE_URL                 | SQS queue URL to upload SIMs data to disable  | https://sqs.REGION.amazonaws.com/ACCOUNT/sims-disable.fifo |
 
 ## How to run unit tests
 ```
@@ -61,5 +56,3 @@ npm run zip
 ```
 
 3) Inside the `dist` folder you will find the `sim-retrieval.zip` file ready to upload to AWS Lambda
-
-

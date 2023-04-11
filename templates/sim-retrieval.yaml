@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Create lambda to handle the SIM retrieval process"
+Description: Create lambda to handle the SIM retrieval process
 
 Parameters:
   #=======================================================
@@ -9,11 +9,11 @@ Parameters:
   #=======================================================
   LambdaName:
     Type: String
-    Default: "sim-retrieval"
+    Default: sim-retrieval
     Description: Lambda name
   ManagementApiURL:
     Type: String
-    Default: "https://api-prod.1nce.com/management-api"
+    Default: https://api-prod.1nce.com/management-api
     Description: Management API URL
   ManagementApiCredentialsSecretARN:
     Type: String
@@ -34,27 +34,21 @@ Parameters:
   SimCreateQueueARN:
     Description: SQS queue ARN to create SIMs
     Type: String
-    Default: ""
   SimCreateQueueURL:
     Description: SQS queue URL to create SIMs
     Type: String
-    Default: ""
-  SimDeleteQueueARN:
-    Description: SQS queue ARN to delete SIMs
+  SimDisableQueueARN:
+    Description: SQS queue ARN to disable SIMs
     Type: String
-    Default: ""
-  SimDeleteQueueURL:
-    Description: SQS queue URL to delete SIMs
+  SimDisableQueueURL:
+    Description: SQS queue URL to disable SIMs
     Type: String
-    Default: ""
   SimTableARN:
     Description: Dynamo DB SIMs table ARN
     Type: String
-    Default: ""
   SimTableName:
     Description: Dynamo DB SIMs table name
     Type: String
-    Default: ""
   SnsFailureSummaryTopicARN:
     Type: String
     Description: SNS topic to post summary message on failure case
@@ -62,39 +56,39 @@ Parameters:
 Mappings:
   RegionToLayerArnMap:
     us-east-1:
-      LayerArn: "arn:aws:lambda:us-east-1:177933569100:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
+      LayerArn: arn:aws:lambda:us-east-1:177933569100:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4
     us-east-2:
-      LayerArn: "arn:aws:lambda:us-east-2:590474943231:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
+      LayerArn: arn:aws:lambda:us-east-2:590474943231:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4
     us-west-1:
-      LayerArn: "arn:aws:lambda:us-west-1:997803712105:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
+      LayerArn: arn:aws:lambda:us-west-1:997803712105:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4
     us-west-2:
-      LayerArn: "arn:aws:lambda:us-west-2:345057560386:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
+      LayerArn: arn:aws:lambda:us-west-2:345057560386:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4
     ap-south-1:
-      LayerArn: "arn:aws:lambda:ap-south-1:176022468876:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
+      LayerArn: arn:aws:lambda:ap-south-1:176022468876:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4
     ap-northeast-3:
-      LayerArn: "arn:aws:lambda:ap-northeast-3:576959938190:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
+      LayerArn: arn:aws:lambda:ap-northeast-3:576959938190:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4
     ap-northeast-2:
-      LayerArn: "arn:aws:lambda:ap-northeast-2:738900069198:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
+      LayerArn: arn:aws:lambda:ap-northeast-2:738900069198:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4
     ap-southeast-1:
-      LayerArn: "arn:aws:lambda:ap-southeast-1:044395824272:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
+      LayerArn: arn:aws:lambda:ap-southeast-1:044395824272:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4
     ap-southeast-2:
-      LayerArn: "arn:aws:lambda:ap-southeast-2:665172237481:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
+      LayerArn: arn:aws:lambda:ap-southeast-2:665172237481:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4
     ap-northeast-1:
-      LayerArn: "arn:aws:lambda:ap-northeast-1:133490724326:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
+      LayerArn: arn:aws:lambda:ap-northeast-1:133490724326:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4
     ca-central-1:
-      LayerArn: "arn:aws:lambda:ca-central-1:200266452380:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
+      LayerArn: arn:aws:lambda:ca-central-1:200266452380:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4
     eu-central-1:
-      LayerArn: "arn:aws:lambda:eu-central-1:187925254637:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
+      LayerArn: arn:aws:lambda:eu-central-1:187925254637:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4
     eu-west-1:
-      LayerArn: "arn:aws:lambda:eu-west-1:015030872274:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
+      LayerArn: arn:aws:lambda:eu-west-1:015030872274:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4
     eu-west-2:
-      LayerArn: "arn:aws:lambda:eu-west-2:133256977650:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
+      LayerArn: arn:aws:lambda:eu-west-2:133256977650:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4
     eu-west-3:
-      LayerArn: "arn:aws:lambda:eu-west-3:780235371811:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
+      LayerArn: arn:aws:lambda:eu-west-3:780235371811:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4
     eu-north-1:
-      LayerArn: "arn:aws:lambda:eu-north-1:427196147048:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
+      LayerArn: arn:aws:lambda:eu-north-1:427196147048:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4
     sa-east-1:
-      LayerArn: "arn:aws:lambda:sa-east-1:933737806257:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4"
+      LayerArn: arn:aws:lambda:sa-east-1:933737806257:layer:AWS-Parameters-and-Secrets-Lambda-Extension:4
 
 Resources:
   #=======================================================
@@ -103,102 +97,121 @@ Resources:
   #
   #=======================================================
   LambdaSimRetrievalIAMRole:
-    Type: "AWS::IAM::Role"
+    Type: AWS::IAM::Role
     Properties:
-      Path: "/"
+      Path: /
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
-          - Effect: "Allow"
+          - Effect: Allow
             Principal:
               Service:
-                - "lambda.amazonaws.com"
-            Action: "sts:AssumeRole"
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
       ManagedPolicyArns:
-        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
-        - PolicyName: !Sub "sim-retrieval-policy-${AWS::Region}"
+        - PolicyName:
+            Fn::Sub: sim-retrieval-policy-${AWS::Region}
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
-              - Effect: "Allow"
-                Action: "sqs:SendMessage"
+              - Effect: Allow
+                Action: sqs:SendMessage
                 Resource:
-                  - !Ref "SimCreateQueueARN"
-                  - !Ref "SimDeleteQueueARN"
-              - Effect: "Allow"
-                Action: "dynamodb:Scan"
-                Resource: !Ref "SimTableARN"
+                  - Ref: SimCreateQueueARN
+                  - Ref: SimDisableQueueARN
+              - Effect: Allow
+                Action: dynamodb:Scan
+                Resource:
+                  Ref: SimTableARN
               - Effect: Allow
                 Action:
-                  - "s3:GetObject"
-                  - "s3:ListBucket"
-                  - "s3:GetBucketPolicy"
-                  - "S3:PutObjectTagging"
+                  - s3:GetObject
+                  - s3:ListBucket
+                  - s3:GetBucketPolicy
+                  - S3:PutObjectTagging
                 Resource:
-                  - !Join
-                    - ""
-                    - - !Ref S3LocalBucketArn
-                      - /*
-                  - !Ref S3LocalBucketArn
-              - Effect: "Allow"
-                Action: "secretsmanager:GetSecretValue"
-                Resource: !Ref "ManagementApiCredentialsSecretARN"
+                  - Fn::Sub: ${S3LocalBucketArn}/*
+                  - Ref: S3LocalBucketArn
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource:
+                  Ref: ManagementApiCredentialsSecretARN
               - Effect: Allow
                 Action:
                   - sns:Publish
                 Resource:
-                  - !Ref SnsFailureSummaryTopicARN
+                  - Ref: SnsFailureSummaryTopicARN
 
   LambdaSimRetrievalSchedule:
-    Type: "AWS::Events::Rule"
+    Type: AWS::Events::Rule
     Properties:
       Description: A crontab schedule for the Lambda function
-      ScheduleExpression: !Ref "LambdaCron"
+      ScheduleExpression:
+        Ref: LambdaCron
       State: ENABLED
       Targets:
-        - Arn: !Sub ${LambdaSimRetrievalFunction.Arn}
+        - Arn:
+            Fn::Sub: ${LambdaSimRetrievalFunction.Arn}
           Id: LambdaSimRetrievalSchedule
 
   LambdaSimRetrievalSchedulePermission:
-    Type: "AWS::Lambda::Permission"
+    Type: AWS::Lambda::Permission
     Properties:
-      Action: "lambda:InvokeFunction"
-      FunctionName: !Sub ${LambdaSimRetrievalFunction.Arn}
-      Principal: "events.amazonaws.com"
-      SourceArn: !Sub ${LambdaSimRetrievalSchedule.Arn}
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::Sub: ${LambdaSimRetrievalFunction.Arn}
+      Principal: events.amazonaws.com
+      SourceArn:
+        Fn::Sub: ${LambdaSimRetrievalSchedule.Arn}
 
   LambdaSimRetrievalFunction:
-    Type: "AWS::Lambda::Function"
+    Type: AWS::Lambda::Function
     Properties:
       Timeout: 900
       Description: SIMs retrieval function from 1nce API
       Environment:
         Variables:
-          MANAGEMENT_API_URL: !Ref "ManagementApiURL"
-          MANAGEMENT_API_CREDENTIALS_SECRET_ARN: !Ref "ManagementApiCredentialsSecretARN"
-          SIM_CREATE_QUEUE_URL: !Ref "SimCreateQueueURL"
-          SIM_DELETE_QUEUE_URL: !Ref "SimDeleteQueueURL"
-          SIMS_TABLE: !Ref "SimTableName"
+          MANAGEMENT_API_URL:
+            Ref: ManagementApiURL
+          MANAGEMENT_API_CREDENTIALS_SECRET_ARN:
+            Ref: ManagementApiCredentialsSecretARN
+          SIM_CREATE_QUEUE_URL:
+            Ref: SimCreateQueueURL
+          SIM_DISABLE_QUEUE_URL:
+            Ref: SimDisableQueueURL
+          SIMS_TABLE:
+            Ref: SimTableName
           PARAMETERS_SECRETS_EXTENSION_CACHE_ENABLED: true # setting to false should force to refetch secrets
           SECRETS_MANAGER_TTL: 300 # TTL of a secret in the cache in seconds
-          SNS_FAILURE_SUMMARY_TOPIC: !Ref "SnsFailureSummaryTopicARN"
-      FunctionName: !Ref "LambdaName"
-      Handler: "index.handler"
+          SNS_FAILURE_SUMMARY_TOPIC:
+            Ref: SnsFailureSummaryTopicARN
+      FunctionName:
+        Ref: LambdaName
+      Handler: index.handler
       Architectures:
-        - "x86_64"
+        - x86_64
       Code:
-        S3Bucket: !Ref "S3LocalBucketName"
-        S3Key: !Ref "SimRetrievalLambdaZipPath"
+        S3Bucket:
+          Ref: S3LocalBucketName
+        S3Key:
+          Ref: SimRetrievalLambdaZipPath
       MemorySize: 128
-      Role: !GetAtt "LambdaSimRetrievalIAMRole.Arn"
-      Runtime: "nodejs14.x"
+      Role:
+        Fn::GetAtt:
+          - LambdaSimRetrievalIAMRole
+          - Arn
+      Runtime: nodejs14.x
       TracingConfig:
-        Mode: "PassThrough"
+        Mode: Active
       EphemeralStorage:
         Size: 512
       Layers:
-        - !FindInMap [RegionToLayerArnMap, !Ref "AWS::Region", LayerArn]
+        - Fn::FindInMap:
+            - RegionToLayerArnMap
+            - Ref: AWS::Region
+            - LayerArn
 
 Outputs:
   #=======================================================
@@ -207,5 +220,6 @@ Outputs:
   #
   #=======================================================
   FunctionName:
-    Description: "Sim Retrieval Function Name"
-    Value: !Ref LambdaSimRetrievalFunction
+    Description: Sim Retrieval Function Name
+    Value:
+      Ref: LambdaSimRetrievalFunction

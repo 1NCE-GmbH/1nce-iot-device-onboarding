@@ -11,10 +11,13 @@ console.log = jest.fn();
 console.error = jest.fn();
 const mockPublishToSnsTopic = mocked(publishToSnsTopic);
 
+const mockDate = new Date("2022-04-02T09:00:00.000Z");
+
 describe("Error service", () => {
   beforeAll(() => {
-    jest.useFakeTimers();
-    jest.setSystemTime(new Date(2023, 1, 1));
+    jest.useFakeTimers({
+      now: mockDate.getTime(),
+    });
   });
 
   afterAll(() => {
@@ -30,15 +33,15 @@ describe("Error service", () => {
       it("should log the error", async () => {
         mockPublishToSnsTopic.mockRejectedValueOnce(new Error("SNS error"));
 
-        await publishErrorToSnsTopic(new Error("SNS error"));
+        await publishErrorToSnsTopic("Error description", new Error("SNS error"));
 
         expect(mockPublishToSnsTopic).toHaveBeenCalledTimes(1);
         expect(mockPublishToSnsTopic).toHaveBeenCalledWith("SNS_FAILURE_SUMMARY_TOPIC", JSON.stringify({
-          timestamp: 1675209600000,
+          timestamp: mockDate.getTime(),
           message: "SNS error",
         }));
         expect(console.log).toHaveBeenCalledTimes(1);
-        expect(console.log).toHaveBeenNthCalledWith(1, "Sending error message to SNS topic", { timestamp: 1675209600000, message: "SNS error" });
+        expect(console.log).toHaveBeenNthCalledWith(1, "Sending error message to SNS topic", { timestamp: mockDate.getTime(), message: "SNS error" });
         expect(console.error).toHaveBeenCalledTimes(1);
         expect(console.error).toHaveBeenNthCalledWith(1, "Error sending message to SNS failure topic", new Error("SNS error"));
       });
@@ -48,15 +51,15 @@ describe("Error service", () => {
       it("should log the error", async () => {
         mockPublishToSnsTopic.mockRejectedValueOnce("SNS error");
 
-        await publishErrorToSnsTopic("SNS error");
+        await publishErrorToSnsTopic("Error description", "SNS error");
 
         expect(mockPublishToSnsTopic).toHaveBeenCalledTimes(1);
         expect(mockPublishToSnsTopic).toHaveBeenCalledWith("SNS_FAILURE_SUMMARY_TOPIC", JSON.stringify({
-          timestamp: 1675209600000,
+          timestamp: mockDate.getTime(),
           message: "SNS error",
         }));
         expect(console.log).toHaveBeenCalledTimes(1);
-        expect(console.log).toHaveBeenNthCalledWith(1, "Sending error message to SNS topic", { timestamp: 1675209600000, message: "SNS error" });
+        expect(console.log).toHaveBeenNthCalledWith(1, "Sending error message to SNS topic", { timestamp: mockDate.getTime(), message: "SNS error" });
         expect(console.error).toHaveBeenCalledTimes(1);
         expect(console.error).toHaveBeenNthCalledWith(1, "Error sending message to SNS failure topic", "SNS error");
       });
@@ -68,15 +71,15 @@ describe("Error service", () => {
       it("should send the message", async () => {
         mockPublishToSnsTopic.mockResolvedValueOnce({ $metadata: {} });
 
-        await publishErrorToSnsTopic(new Error("SNS error"));
+        await publishErrorToSnsTopic("Error description", new Error("SNS error"));
 
         expect(mockPublishToSnsTopic).toHaveBeenCalledTimes(1);
         expect(mockPublishToSnsTopic).toHaveBeenCalledWith("SNS_FAILURE_SUMMARY_TOPIC", JSON.stringify({
-          timestamp: 1675209600000,
+          timestamp: mockDate.getTime(),
           message: "SNS error",
         }));
         expect(console.log).toHaveBeenCalledTimes(1);
-        expect(console.log).toHaveBeenNthCalledWith(1, "Sending error message to SNS topic", { timestamp: 1675209600000, message: "SNS error" });
+        expect(console.log).toHaveBeenNthCalledWith(1, "Sending error message to SNS topic", { timestamp: mockDate.getTime(), message: "SNS error" });
         expect(console.error).toHaveBeenCalledTimes(0);
       });
     });
@@ -85,7 +88,7 @@ describe("Error service", () => {
       it("should send the message", async () => {
         mockPublishToSnsTopic.mockResolvedValueOnce({ $metadata: {} });
 
-        await publishErrorToSnsTopic(new Error("SNS error"), new SIM({
+        await publishErrorToSnsTopic("Error description", new Error("SNS error"), new SIM({
           ip: "10.0.0.0",
           iccid: "123456789",
           active: true,
@@ -97,15 +100,15 @@ describe("Error service", () => {
         expect(mockPublishToSnsTopic).toHaveBeenCalledWith("SNS_FAILURE_SUMMARY_TOPIC", JSON.stringify({
           iccid: "123456789",
           ip: "10.0.0.0",
-          timestamp: 1675209600000,
-          message: "SNS error",
+          timestamp: mockDate.getTime(),
+          message: "Error description. Error: SNS error",
         }));
         expect(console.log).toHaveBeenCalledTimes(1);
         expect(console.log).toHaveBeenNthCalledWith(1, "Sending error message to SNS topic", {
           iccid: "123456789",
           ip: "10.0.0.0",
-          timestamp: 1675209600000,
-          message: "SNS error",
+          timestamp: mockDate.getTime(),
+          message: "Error description. Error: SNS error",
         });
         expect(console.error).toHaveBeenCalledTimes(0);
       });

@@ -3,27 +3,25 @@ import { publishToMqtt } from "../utils/awsIotCoreHelper";
 import { publishToSnsTopic } from "../utils/snsHelper";
 
 const SNS_SUCCESS_SUMMARY_TOPIC = process.env.SNS_SUCCESS_SUMMARY_TOPIC as string;
-
 const MQTT_REGISTRATION_TOPIC = "registration";
-const SUCCESS_SUMMARY_MESSAGE = "enabled";
 
-export async function publishRegistrationToMqtt(sim: SIM): Promise<void> {
+export async function publishRegistrationToMqtt(sim: SIM, message: string): Promise<void> {
   try {
-    const message = sim.toMessage(SUCCESS_SUMMARY_MESSAGE);
+    const mqttMessage = sim.toMessage(message);
 
-    console.log("Sending message to MQTT topic", message);
-    await publishToMqtt(MQTT_REGISTRATION_TOPIC, JSON.stringify(message));
+    console.log("Sending message to MQTT topic", mqttMessage);
+    await publishToMqtt(MQTT_REGISTRATION_TOPIC, JSON.stringify(mqttMessage));
   } catch (error) {
     console.error(`Error sending registration message to MQTT topic: ${MQTT_REGISTRATION_TOPIC}`, error);
   }
 }
 
-export async function publishSuccessSummaryToSns(sim: SIM): Promise<void> {
+export async function publishSuccessSummaryToSns(sim: SIM, message: string): Promise<void> {
   try {
-    const message = sim.toMessage(SUCCESS_SUMMARY_MESSAGE);
+    const snsMessage = sim.toMessage(message);
 
-    console.log("Sending message to SNS topic", message);
-    await publishToSnsTopic(SNS_SUCCESS_SUMMARY_TOPIC, JSON.stringify(message));
+    console.log("Sending message to SNS topic", snsMessage);
+    await publishToSnsTopic(SNS_SUCCESS_SUMMARY_TOPIC, JSON.stringify(snsMessage));
   } catch (error) {
     console.error(`Error sending success summary message to SNS topic: ${SNS_SUCCESS_SUMMARY_TOPIC}`, error);
   }

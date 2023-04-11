@@ -1,69 +1,69 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Generates sim create and delete SQS queues"
+Description: Generates sim create and disable SQS queues
 Resources:
   #=======================================================
   #
   #             SQS Queue resources
   #
   #=======================================================
-  SimDeleteQueue:
-    Type: "AWS::SQS::Queue"
+  SimDisableQueue:
+    Type: AWS::SQS::Queue
     Properties:
-      ContentBasedDeduplication: "false"
-      DelaySeconds: "0"
-      FifoQueue: "true"
-      MaximumMessageSize: "262144"
-      MessageRetentionPeriod: "345600"
-      ReceiveMessageWaitTimeSeconds: "0"
-      VisibilityTimeout: "30"
-      QueueName: "sims-delete.fifo"
+      ContentBasedDeduplication: false
+      DelaySeconds: 0
+      FifoQueue: true
+      MaximumMessageSize: 262144
+      MessageRetentionPeriod: 345600
+      ReceiveMessageWaitTimeSeconds: 0
+      VisibilityTimeout: 30
+      QueueName: sims-disable.fifo
 
   SimCreateQueue:
-    Type: "AWS::SQS::Queue"
+    Type: AWS::SQS::Queue
     Properties:
-      ContentBasedDeduplication: "false"
-      DelaySeconds: "0"
-      FifoQueue: "true"
-      MaximumMessageSize: "262144"
-      MessageRetentionPeriod: "345600"
-      ReceiveMessageWaitTimeSeconds: "0"
-      VisibilityTimeout: "30"
-      QueueName: "sims-create.fifo"
+      ContentBasedDeduplication: false
+      DelaySeconds: 0
+      FifoQueue: true
+      MaximumMessageSize: 262144
+      MessageRetentionPeriod: 345600
+      ReceiveMessageWaitTimeSeconds: 0
+      VisibilityTimeout: 30
+      QueueName: sims-create.fifo
 Outputs:
   #=======================================================
   #
   #                 CloudFormation Outputs
   #
   #=======================================================
-  SimDeleteQueueURL:
-    Description: "URL of Sim Delete SQS Queue"
+  SimDisableQueueURL:
+    Description: URL of Sim Disable SQS Queue
     Value:
-      Ref: "SimDeleteQueue"
-  SimDeleteQueueARN:
-    Description: "ARN of Sim Delete Queue"
-    Value:
-      Fn::GetAtt:
-        - "SimDeleteQueue"
-        - "Arn"
-  SimDeleteQueueName:
-    Description: "Name of Sim Delete Queue"
+      Ref: SimDisableQueue
+  SimDisableQueueARN:
+    Description: ARN of Sim Disable Queue
     Value:
       Fn::GetAtt:
-        - "SimDeleteQueue"
-        - "QueueName"
+        - SimDisableQueue
+        - Arn
+  SimDisableQueueName:
+    Description: Name of Sim Disable Queue
+    Value:
+      Fn::GetAtt:
+        - SimDisableQueue
+        - QueueName
   SimCreateQueueURL:
-    Description: "URL of Sim Create SQS Queue"
+    Description: URL of Sim Create SQS Queue
     Value:
-      Ref: "SimCreateQueue"
+      Ref: SimCreateQueue
   SimCreateQueueARN:
-    Description: "ARN of Sim Create Queue"
+    Description: ARN of Sim Create Queue
     Value:
       Fn::GetAtt:
-        - "SimCreateQueue"
-        - "Arn"
+        - SimCreateQueue
+        - Arn
   SimCreateQueueName:
-    Description: "Name of Sim Create Queue"
+    Description: Name of Sim Create Queue
     Value:
       Fn::GetAtt:
-        - "SimCreateQueue"
-        - "QueueName"
+        - SimCreateQueue
+        - QueueName

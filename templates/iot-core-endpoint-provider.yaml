@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Contains custom resource lambda which provides IOT Core Endpoint URL as output"
+Description: Contains custom resource lambda which provides IOT Core Endpoint URL as output
 Resources:
   #=======================================================
   #
@@ -9,7 +9,7 @@ Resources:
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      Path: "/"
+      Path: /
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -20,9 +20,10 @@ Resources:
             Action:
               - sts:AssumeRole
       ManagedPolicyArns:
-        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
-        - PolicyName: !Sub "iot-core-endpoint-provider-policy-${AWS::Region}"
+        - PolicyName:
+            Fn::Sub: iot-core-endpoint-provider-policy-${AWS::Region}
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -40,9 +41,12 @@ Resources:
       Runtime: nodejs14.x
       MemorySize: 128
       Timeout: 15
-      Role: !GetAtt LambdaExecutionRole.Arn
+      Role:
+        Fn::GetAtt:
+          - LambdaExecutionRole
+          - Arn
       TracingConfig:
-        Mode: "PassThrough"
+        Mode: Active
       Code:
         ZipFile: |
           var aws = require("aws-sdk");
@@ -107,16 +111,22 @@ Resources:
               request.end();
           }
   IotEndpoint:
-    Type: "Custom::IotEndpoint"
+    Type: Custom::IotEndpoint
     Properties:
-      ServiceToken: !GetAtt IotEndpointProvider.Arn
+      ServiceToken:
+        Fn::GetAtt:
+          - IotEndpointProvider
+          - Arn
 
 Outputs:
   #=======================================================
   #
-  #                      OUTPUTS
+  #                 CloudFormation Outputs
   #
   #=======================================================
   IotEndpointAddress:
-    Value: !GetAtt IotEndpoint.IotEndpointAddress
+    Value:
+      Fn::GetAtt:
+        - IotEndpoint
+        - IotEndpointAddress
     Description: Retrieved Iot Core Endpoint Url

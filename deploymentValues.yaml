@@ -1,0 +1,15 @@
+version: V1.0.0
+apiGatewayUrlSSMParamName: openvpn-onboarding-api-gateway-url
+onboardingPathSSMParamName: openvpn-onboarding-path
+proxyServerSSMParamName: openvpn-onboarding-proxy-server
+breakoutRegionSSMParamName: breakout-region
+openVPNCredentialsSecretName: open-source-device-onboarding-openvpn-credentials
+onboardingApiKeyName: device-onboarding-key
+
+dev:
+  codeBaseBucket: device-onboarding-dev-cloudformation-templates
+  codeBaseBucketRegion: eu-central-1
+
+prod:
+  codeBaseBucket: device-onboarding-prod-cloudformation-templates
+  codeBaseBucketRegion: eu-central-1

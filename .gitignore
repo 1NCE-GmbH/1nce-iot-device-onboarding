@@ -2,6 +2,9 @@
 node_modules
 jspm_packages
 
+# Serverless directories
+.serverless
+
 # IDE
 /.vscode
 .idea/
@@ -22,3 +25,5 @@ applications/junit.xml
 
 # OS X files
 .DS_Store
+
+build/

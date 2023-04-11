@@ -20,15 +20,6 @@ describe("IoT Core service", () => {
   let iotCertificate: IoTCoreCertificate;
   let iotThing: IoTCoreThing;
 
-  beforeAll(() => {
-    jest.useFakeTimers();
-    jest.setSystemTime(new Date(2023, 1, 1));
-  });
-
-  afterAll(() => {
-    jest.useRealTimers();
-  });
-
   beforeEach(() => {
     jest.resetAllMocks();
     iotCertificate = new IoTCoreCertificate({ id: "id", arn: "arn", pem: "pem", privateKey: "private-key" });

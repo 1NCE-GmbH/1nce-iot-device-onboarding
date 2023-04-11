@@ -1,5 +1,5 @@
 process.env.SIM_CREATE_QUEUE_URL = "SIM_CREATE_QUEUE_URL";
-process.env.SIM_DELETE_QUEUE_URL = "SIM_DELETE_QUEUE_URL";
+process.env.SIM_DISABLE_QUEUE_URL = "SIM_DISABLE_QUEUE_URL";
 process.env.SNS_FAILURE_SUMMARY_TOPIC = "SNS_FAILURE_SUMMARY_TOPIC";
 
 import { mocked } from "jest-mock";
@@ -19,20 +19,11 @@ console.log = jest.fn();
 console.error = jest.fn();
 const mockGetAuthToken = mocked(getAuthToken);
 const mockGetAllSims = mocked(getAllSims);
-const mockGetDbSims = mocked(getDbSims);
+const mockgetDbSims = mocked(getDbSims);
 const mockSendSQSBatchMessages = mocked(sendSQSBatchMessages);
 const mockPublishErrorToSnsTopic = mocked(publishErrorToSnsTopic);
 
 describe("SIM Retrieval", () => {
-  beforeAll(() => {
-    jest.useFakeTimers();
-    jest.setSystemTime(new Date(2023, 1, 1));
-  });
-
-  afterAll(() => {
-    jest.useRealTimers();
-  });
-
   beforeEach(() => {
     jest.resetAllMocks();
   });
@@ -45,7 +36,7 @@ describe("SIM Retrieval", () => {
 
         await handler();
 
-        expect(mockPublishErrorToSnsTopic).toHaveBeenCalledWith(new Error("Auth Error"));
+        expect(mockPublishErrorToSnsTopic).toHaveBeenCalledWith("SIM retrieve failed", new Error("Auth Error"));
         expect(console.error).toHaveBeenCalledWith("Error retrieving SIMs", new Error("Auth Error"));
       });
     });
@@ -58,7 +49,7 @@ describe("SIM Retrieval", () => {
 
         await handler();
 
-        expect(mockPublishErrorToSnsTopic).toHaveBeenCalledWith("API Error");
+        expect(mockPublishErrorToSnsTopic).toHaveBeenCalledWith("SIM retrieve failed", "API Error");
         expect(console.error).toHaveBeenCalledWith("Error retrieving SIMs", "API Error");
       });
     });
@@ -75,12 +66,12 @@ describe("SIM Retrieval", () => {
             privateKey: "private_key",
           }),
         ]);
-        mockGetDbSims.mockRejectedValueOnce(new Error("Database Error"));
+        mockgetDbSims.mockRejectedValueOnce(new Error("Database Error"));
         mockPublishErrorToSnsTopic.mockResolvedValueOnce();
 
         await handler();
 
-        expect(mockPublishErrorToSnsTopic).toHaveBeenCalledWith(new Error("Database Error"));
+        expect(mockPublishErrorToSnsTopic).toHaveBeenCalledWith("SIM retrieve failed", new Error("Database Error"));
         expect(console.error).toHaveBeenCalledWith("Error retrieving SIMs", new Error("Database Error"));
         expect(console.log).toHaveBeenNthCalledWith(1, "SIMs returned by API: 1");
       });
@@ -99,7 +90,7 @@ describe("SIM Retrieval", () => {
               privateKey: "private_key",
             }),
           ]);
-          mockGetDbSims.mockResolvedValueOnce([
+          mockgetDbSims.mockResolvedValueOnce([
             new SIM({
               iccid: "1111111111",
               ip: "10.0.0.1",
@@ -115,7 +106,7 @@ describe("SIM Retrieval", () => {
           expect(console.log).toHaveBeenNthCalledWith(1, "SIMs returned by API: 1");
           expect(console.log).toHaveBeenNthCalledWith(2, "SIMs returned by database: 1");
           expect(console.log).toHaveBeenNthCalledWith(3, "SIMs to be created: 0");
-          expect(console.log).toHaveBeenNthCalledWith(4, "SIMs to be deleted: 0");
+          expect(console.log).toHaveBeenNthCalledWith(4, "SIMs to be disabled: 0");
         });
       });
 
@@ -138,7 +129,7 @@ describe("SIM Retrieval", () => {
               privateKey: "private_key",
             }),
           ]);
-          mockGetDbSims.mockResolvedValueOnce([
+          mockgetDbSims.mockResolvedValueOnce([
             new SIM({
               iccid: "1111111111",
               ip: "10.0.0.1",
@@ -163,12 +154,12 @@ describe("SIM Retrieval", () => {
           expect(console.log).toHaveBeenNthCalledWith(1, "SIMs returned by API: 2");
           expect(console.log).toHaveBeenNthCalledWith(2, "SIMs returned by database: 1");
           expect(console.log).toHaveBeenNthCalledWith(3, "SIMs to be created: 1");
-          expect(console.log).toHaveBeenNthCalledWith(4, "SIMs to be deleted: 0");
+          expect(console.log).toHaveBeenNthCalledWith(4, "SIMs to be disabled: 0");
         });
       });
 
       describe("and the API returns fewer SIMs than registered in the database", () => {
-        it("should send messages to delete these SIMs into SQS delete queue", async () => {
+        it("should send messages to disable these SIMs into SQS disable queue", async () => {
           mockGetAuthToken.mockResolvedValueOnce("JWT_TOKEN");
           mockGetAllSims.mockResolvedValueOnce([
             new SIM({
@@ -186,7 +177,7 @@ describe("SIM Retrieval", () => {
               privateKey: "private_key",
             }),
           ]);
-          mockGetDbSims.mockResolvedValueOnce([
+          mockgetDbSims.mockResolvedValueOnce([
             new SIM({
               iccid: "1111111111",
               ip: "10.0.0.1",
@@ -213,7 +204,7 @@ describe("SIM Retrieval", () => {
           await handler();
 
           expect(mockSendSQSBatchMessages).toHaveBeenCalledTimes(1);
-          expect(mockSendSQSBatchMessages).toHaveBeenCalledWith("SIM_DELETE_QUEUE_URL", [
+          expect(mockSendSQSBatchMessages).toHaveBeenCalledWith("SIM_DISABLE_QUEUE_URL", [
             new SIM({
               iccid: "3333333333",
               ip: "10.0.0.3",
@@ -225,12 +216,120 @@ describe("SIM Retrieval", () => {
           expect(console.log).toHaveBeenNthCalledWith(1, "SIMs returned by API: 2");
           expect(console.log).toHaveBeenNthCalledWith(2, "SIMs returned by database: 3");
           expect(console.log).toHaveBeenNthCalledWith(3, "SIMs to be created: 0");
-          expect(console.log).toHaveBeenNthCalledWith(4, "SIMs to be deleted: 1");
+          expect(console.log).toHaveBeenNthCalledWith(4, "SIMs to be disabled: 1");
+        });
+      });
+
+      describe("and the API returns fewer SIMs than registered in the database but they are already disabled", () => {
+        it("should NOT send messages to disable these SIMs", async () => {
+          mockGetAuthToken.mockResolvedValueOnce("JWT_TOKEN");
+          mockGetAllSims.mockResolvedValueOnce([
+            new SIM({
+              iccid: "1111111111",
+              ip: "10.0.0.1",
+              active: true,
+              certificate: "certificate",
+              privateKey: "private_key",
+            }),
+            new SIM({
+              iccid: "2222222222",
+              ip: "10.0.0.2",
+              active: true,
+              certificate: "certificate",
+              privateKey: "private_key",
+            }),
+          ]);
+          mockgetDbSims.mockResolvedValueOnce([
+            new SIM({
+              iccid: "1111111111",
+              ip: "10.0.0.1",
+              active: true,
+              certificate: "certificate",
+              privateKey: "private_key",
+            }),
+            new SIM({
+              iccid: "2222222222",
+              ip: "10.0.0.2",
+              active: true,
+              certificate: "certificate",
+              privateKey: "private_key",
+            }),
+            new SIM({
+              iccid: "3333333333",
+              ip: "10.0.0.3",
+              active: false,
+              certificate: "certificate",
+              privateKey: "private_key",
+            }),
+          ]);
+
+          await handler();
+
+          expect(mockSendSQSBatchMessages).toHaveBeenCalledTimes(0);
+          expect(console.log).toHaveBeenNthCalledWith(1, "SIMs returned by API: 2");
+          expect(console.log).toHaveBeenNthCalledWith(2, "SIMs returned by database: 3");
+          expect(console.log).toHaveBeenNthCalledWith(3, "SIMs to be created: 0");
+          expect(console.log).toHaveBeenNthCalledWith(4, "SIMs to be disabled: 0");
+        });
+      });
+
+      describe("and the API returns SIM that is disabled in the database", () => {
+        it("should send message to create disabled SIM", async () => {
+          mockGetAuthToken.mockResolvedValueOnce("JWT_TOKEN");
+          mockGetAllSims.mockResolvedValueOnce([
+            new SIM({
+              iccid: "1111111111",
+              ip: "10.0.0.1",
+              active: true,
+              certificate: "certificate",
+              privateKey: "private_key",
+            }),
+            new SIM({
+              iccid: "2222222222",
+              ip: "10.0.0.2",
+              active: true,
+              certificate: "certificate",
+              privateKey: "private_key",
+            }),
+          ]);
+          mockgetDbSims.mockResolvedValueOnce([
+            new SIM({
+              iccid: "1111111111",
+              ip: "10.0.0.1",
+              active: false,
+              certificate: "certificate",
+              privateKey: "private_key",
+            }),
+            new SIM({
+              iccid: "2222222222",
+              ip: "10.0.0.2",
+              active: true,
+              certificate: "certificate",
+              privateKey: "private_key",
+            }),
+          ]);
+
+          await handler();
+
+          expect(mockSendSQSBatchMessages).toHaveBeenCalledTimes(1);
+          expect(mockSendSQSBatchMessages).toHaveBeenCalledWith("SIM_CREATE_QUEUE_URL", [
+            new SIM({
+              iccid: "1111111111",
+              ip: "10.0.0.1",
+              active: true,
+              certificate: "certificate",
+              privateKey: "private_key",
+            }).buildSqsMessageEntry(),
+          ]);
+          expect(console.log).toHaveBeenNthCalledWith(1, "SIMs returned by API: 2");
+          expect(console.log).toHaveBeenNthCalledWith(2, "SIMs returned by database: 2");
+          expect(console.log).toHaveBeenNthCalledWith(3, "SIMs to be created: 1");
+          expect(console.log).toHaveBeenNthCalledWith(4, "SIMs to be disabled: 0");
         });
       });
 
       describe("and the API returns a new SIM and a missing SIM compared to the database", () => {
-        it("should send messages to create and delete these SIMs into SQS queues", async () => {
+        it("should send messages to create and disable these SIMs into SQS queues", async () => {
           mockGetAuthToken.mockResolvedValueOnce("JWT_TOKEN");
           mockGetAllSims.mockResolvedValueOnce([
             new SIM({
@@ -255,7 +354,7 @@ describe("SIM Retrieval", () => {
               privateKey: "private_key",
             }),
           ]);
-          mockGetDbSims.mockResolvedValueOnce([
+          mockgetDbSims.mockResolvedValueOnce([
             new SIM({
               iccid: "1111111111",
               ip: "10.0.0.1",
@@ -291,7 +390,7 @@ describe("SIM Retrieval", () => {
               privateKey: "private_key",
             }).buildSqsMessageEntry(),
           ]);
-          expect(mockSendSQSBatchMessages).toHaveBeenCalledWith("SIM_DELETE_QUEUE_URL", [
+          expect(mockSendSQSBatchMessages).toHaveBeenCalledWith("SIM_DISABLE_QUEUE_URL", [
             new SIM({
               iccid: "3333333333",
               ip: "10.0.0.3",
@@ -303,7 +402,7 @@ describe("SIM Retrieval", () => {
           expect(console.log).toHaveBeenNthCalledWith(1, "SIMs returned by API: 3");
           expect(console.log).toHaveBeenNthCalledWith(2, "SIMs returned by database: 3");
           expect(console.log).toHaveBeenNthCalledWith(3, "SIMs to be created: 1");
-          expect(console.log).toHaveBeenNthCalledWith(4, "SIMs to be deleted: 1");
+          expect(console.log).toHaveBeenNthCalledWith(4, "SIMs to be disabled: 1");
         });
       });
 
@@ -319,7 +418,7 @@ describe("SIM Retrieval", () => {
               privateKey: "private_key",
             }),
           ]);
-          mockGetDbSims.mockResolvedValueOnce([]);
+          mockgetDbSims.mockResolvedValueOnce([]);
           mockSendSQSBatchMessages.mockRejectedValueOnce("SQS error");
           mockPublishErrorToSnsTopic.mockResolvedValueOnce();
 
@@ -335,12 +434,12 @@ describe("SIM Retrieval", () => {
               privateKey: "private_key",
             }).buildSqsMessageEntry(),
           ]);
-          expect(mockPublishErrorToSnsTopic).toHaveBeenCalledWith(new Error(JSON.stringify(["SQS error"])));
+          expect(mockPublishErrorToSnsTopic).toHaveBeenCalledWith("SIM retrieve failed", new Error(JSON.stringify(["SQS error"])));
           expect(console.log).toHaveBeenCalledTimes(4);
           expect(console.log).toHaveBeenNthCalledWith(1, "SIMs returned by API: 1");
           expect(console.log).toHaveBeenNthCalledWith(2, "SIMs returned by database: 0");
           expect(console.log).toHaveBeenNthCalledWith(3, "SIMs to be created: 1");
-          expect(console.log).toHaveBeenNthCalledWith(4, "SIMs to be deleted: 0");
+          expect(console.log).toHaveBeenNthCalledWith(4, "SIMs to be disabled: 0");
           expect(console.error).toHaveBeenCalledTimes(1);
           expect(console.error).toHaveBeenNthCalledWith(1, "Error retrieving SIMs", new Error(JSON.stringify(["SQS error"])));
         });

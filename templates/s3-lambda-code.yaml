@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "S3 Bucket for openvpn onboarding resources"
+Description: S3 Bucket for openvpn onboarding resources
 Parameters:
   #=======================================================
   #
@@ -16,6 +16,9 @@ Parameters:
   CreateSimLambdaZipPath:
     Description: Zip path for the compressed folder with the create sim lambda code.
     Type: String
+  DisableSimLambdaZipPath:
+    Description: Zip path for the compressed folder with the disable sim lambda code.
+    Type: String
   DeviceOnboardingLambdaZipPath:
     Description: Zip path for the compressed folder with the device onboarding lambda code.
     Type: String
@@ -26,7 +29,7 @@ Resources:
   #
   #=======================================================
   CodeBucket:
-    Type: "AWS::S3::Bucket"
+    Type: AWS::S3::Bucket
     DeletionPolicy: Delete
     Properties:
       BucketEncryption:
@@ -35,56 +38,48 @@ Resources:
               SSEAlgorithm: AES256
 
   DownloadCodeIAMRole:
-    Type: "AWS::IAM::Role"
+    Type: AWS::IAM::Role
     Properties:
-      Path: "/"
+      Path: /
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
-          - Effect: "Allow"
+          - Effect: Allow
             Principal:
               Service:
-                - "lambda.amazonaws.com"
-            Action: "sts:AssumeRole"
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
       ManagedPolicyArns:
-        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
-        - PolicyName: "name"
+        - PolicyName: name
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
               - Effect: Allow
                 Action:
-                  - "s3:DeleteObject"
-                  - "s3:GetObject"
-                  - "s3:ListBucket"
-                  - "s3:PutObject"
-                  - "s3:GetBucketPolicy"
-                  - "S3:PutObjectTagging"
+                  - s3:DeleteObject
+                  - s3:GetObject
+                  - s3:ListBucket
+                  - s3:PutObject
+                  - s3:GetBucketPolicy
+                  - S3:PutObjectTagging
                 Resource:
-                  - !Join
-                    - ""
-                    - - !GetAtt "CodeBucket.Arn"
-                      - /*
-                  - !GetAtt "CodeBucket.Arn"
+                  - Fn::Sub: ${CodeBucket.Arn}/*
+                  - Fn::GetAtt:
+                      - CodeBucket
+                      - Arn
               - Effect: Allow
                 Action:
-                  - "s3:GetObject"
-                  - "S3:GetObjectTagging"
-                  - "s3:ListBucket"
+                  - s3:GetObject
+                  - S3:GetObjectTagging
+                  - s3:ListBucket
                 Resource:
-                  - !Join
-                    - ""
-                    - - "arn:aws:s3:::"
-                      - !Ref S3CodeOriginBucket
-                  - !Join
-                    - ""
-                    - - "arn:aws:s3:::"
-                      - !Ref S3CodeOriginBucket
-                      - /*
+                  - Fn::Sub: arn:aws:s3:::${S3CodeOriginBucket}
+                  - Fn::Sub: arn:aws:s3:::${S3CodeOriginBucket}/*
 
   DownloadCodeLambdaFunction:
-    Type: "AWS::Lambda::Function"
+    Type: AWS::Lambda::Function
     Properties:
       Code:
         ZipFile: |
@@ -134,38 +129,48 @@ Resources:
                   timer.cancel()
                   cfnresponse.send(event, context, status, {}, None)
       Handler: index.handler
-      MemorySize: 256
-      Role: !GetAtt "DownloadCodeIAMRole.Arn"
+      MemorySize: 128
+      Role:
+        Fn::GetAtt:
+          - DownloadCodeIAMRole
+          - Arn
       Runtime: python3.9
       Timeout: 240
       TracingConfig:
         Mode: Active
 
   LambdaCodeDownloadService:
-    Type: "AWS::CloudFormation::CustomResource"
+    Type: AWS::CloudFormation::CustomResource
     DependsOn: DownloadCodeIAMRole
-    Version: "1.0"
+    Version: 1.0
     Properties:
-      ServiceToken: !GetAtt "DownloadCodeLambdaFunction.Arn"
-      DestBucket: !Ref CodeBucket
-      SourceBucket: !Ref S3CodeOriginBucket
+      ServiceToken:
+        Fn::GetAtt:
+          - DownloadCodeLambdaFunction
+          - Arn
+      DestBucket:
+        Ref: CodeBucket
+      SourceBucket:
+        Ref: S3CodeOriginBucket
       Objects:
-        - !Ref "SimRetrievalLambdaZipPath"
-        - !Ref "CreateSimLambdaZipPath"
-        - !Ref "DeviceOnboardingLambdaZipPath"
+        - Ref: SimRetrievalLambdaZipPath
+        - Ref: CreateSimLambdaZipPath
+        - Ref: DisableSimLambdaZipPath
+        - Ref: DeviceOnboardingLambdaZipPath
 
 Outputs:
   #=======================================================
   #
-  #                     S3 Buckets Outputs
+  #                 CloudFormation Outputs
   #
   #=======================================================
   LocalBucketArn:
     Description: Arn for Code Bucket S3
     Value:
       Fn::GetAtt:
-        - "CodeBucket"
-        - "Arn"
+        - CodeBucket
+        - Arn
   LocalBucketName:
     Description: Name for Code Bucket S3
-    Value: !Ref CodeBucket
+    Value:
+      Ref: CodeBucket

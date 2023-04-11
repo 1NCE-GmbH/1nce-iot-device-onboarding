@@ -1,45 +1,50 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Generates SIM table with a given name"
+Description: Generates SIM table with a given name
 Parameters:
-  ##########################################################################
-  #                                                                        #
-  #                               PARAMETERS                               #
-  #                                                                        #
-  ##########################################################################
+  #=======================================================
+  #
+  #                   CloudFormation Parameters
+  #
+  #=======================================================
   SimTableName:
     Type: String
-    Default: "sim-metastore"
+    Default: sim-metastore
     Description: SIM Table Name
 Resources:
-  ##########################################################################
-  #                                                                        #
-  #                              DYNAMO TABLE                              #
-  #                                                                        #
-  ##########################################################################
+  #=======================================================
+  #
+  #             Dynamo SIM table resources
+  #
+  #=======================================================
   SimTable:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
-        - AttributeName: "PK"
-          AttributeType: "S"
-        - AttributeName: "SK"
-          AttributeType: "S"
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
       KeySchema:
-        - AttributeName: "PK"
-          KeyType: "HASH"
-        - AttributeName: "SK"
-          KeyType: "RANGE"
-      BillingMode: "PAY_PER_REQUEST"
-      TableName: !Ref SimTableName
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+      TableName:
+        Ref: SimTableName
 Outputs:
-  ##########################################################################
-  #                                                                        #
-  #                                OUTPUTS                                 #
-  #                                                                        #
-  ##########################################################################
+  #=======================================================
+  #
+  #                 CloudFormation Outputs
+  #
+  #=======================================================
   SimTableName:
     Description: The name of the newly create SIM Table
-    Value: !Ref SimTable
+    Value:
+      Ref: SimTable
   SimTableArn:
     Description: The ARN of the newly create SIM Table
-    Value: !GetAtt SimTable.Arn
+    Value:
+      Fn::GetAtt:
+        - SimTable
+        - Arn

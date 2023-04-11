@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Create lambda to handle the SIM retrieval process"
+Description: Create lambda to handle the SIM retrieval process
 
 Parameters:
   #=======================================================
@@ -18,26 +18,29 @@ Resources:
   #
   #=======================================================
   LambdaInvokeIAMRole:
-    Type: "AWS::IAM::Role"
+    Type: AWS::IAM::Role
     Properties:
-      Path: "/"
+      Path: /
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
-          - Effect: "Allow"
+          - Effect: Allow
             Principal:
               Service:
-                - "lambda.amazonaws.com"
-            Action: "sts:AssumeRole"
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/service-role/AWSLambdaRole
 
   LambdaInvoke:
-    Type: "AWS::Lambda::Function"
+    Type: AWS::Lambda::Function
     Properties:
       Runtime: nodejs14.x
-      Role: !GetAtt "LambdaInvokeIAMRole.Arn"
+      Role:
+        Fn::GetAtt:
+          - LambdaInvokeIAMRole
+          - Arn
       Handler: index.handler
       Code:
         ZipFile: |
@@ -54,7 +57,7 @@ Resources:
               let responseData = {};
               let functionName = event.ResourceProperties.FunctionName;
               let lambda = new aws.Lambda();
-              lambda.invoke({ FunctionName: functionName }, function (err) {
+              lambda.invoke({ FunctionName: functionName, InvocationType: "Event" }, function (err) {
                   if (err) {
                       responseData = { Error: "Invoke call failed" };
                       console.log(responseData.Error + ":\n", err);
@@ -67,7 +70,11 @@ Resources:
       Description: Invoke a function during stack creation and return cfn-response
 
   LambdaFirstInvoke:
-    Type: "AWS::CloudFormation::CustomResource"
+    Type: AWS::CloudFormation::CustomResource
     Properties:
-      ServiceToken: !GetAtt LambdaInvoke.Arn
-      FunctionName: !Ref FunctionName
+      ServiceToken:
+        Fn::GetAtt:
+          - LambdaInvoke
+          - Arn
+      FunctionName:
+        Ref: FunctionName

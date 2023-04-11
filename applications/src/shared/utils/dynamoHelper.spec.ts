@@ -1,7 +1,7 @@
-import { DynamoDB, ScanCommand, PutItemCommand, GetItemCommand } from "@aws-sdk/client-dynamodb";
+import { DynamoDB, ScanCommand, PutItemCommand, GetItemCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import { mockClient } from "aws-sdk-client-mock";
-import { query, putItem, getItem } from "../utils/dynamoHelper";
+import { query, putItem, getItem, updateItem } from "../utils/dynamoHelper";
 
 console.log = jest.fn();
 
@@ -68,5 +68,24 @@ describe("dynamoHelper", () => {
     const res = await getItem(params);
     expect(res).toStrictEqual({ test: 1 });
     expect(console.log).toHaveBeenCalledWith("Getting item from dynamo with ", params);
+  });
+
+  describe("updateItem", () => {
+    it("should update item to dynamoDB", async () => {
+      DynamoDbClientMock.on(
+        UpdateItemCommand,
+        { TableName: "SIMS_TABLE", Key: { PK: { S: "PK" } }, UpdateExpression: "SET ut=:updateTime, a=:active" },
+      ).resolves({ Attributes: {} });
+
+      const params = {
+        TableName: "SIMS_TABLE",
+        Key: { PK: { S: "PK" } },
+        UpdateExpression: "SET ut=:updateTime, a=:active",
+      };
+      const result = await updateItem(params);
+
+      expect(result).toStrictEqual({ Attributes: {} });
+      expect(console.log).toHaveBeenCalledWith("dynamo update item", params);
+    });
   });
 });

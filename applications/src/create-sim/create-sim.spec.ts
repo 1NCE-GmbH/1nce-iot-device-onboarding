@@ -5,12 +5,12 @@ import { mocked } from "jest-mock";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import { handler } from "./create-sim";
 import { putItem } from "../shared/utils/dynamoHelper";
-import { type SQSEvent } from "aws-lambda";
 import { publishErrorToSnsTopic } from "../shared/services/errorHandlingService";
 import { IoTCoreCertificate } from "../shared/types/iotCoreCertificate";
 import { deleteIotCertificate, deleteIotThing } from "../shared/services/iotCoreService";
 import { IoTCoreThing } from "../shared/types/iotCoreThing";
 import { publishRegistrationToMqtt, publishSuccessSummaryToSns } from "../shared/services/successMessageService";
+import { buildSqsEvent } from "../shared/test/sqs.fixture";
 
 jest.mock("../shared/utils/dynamoHelper");
 jest.mock("../shared/services/errorHandlingService");
@@ -34,14 +34,18 @@ const mockIotCoreThingCreate = mocked(IoTCoreThing.create);
 
 console.error = jest.fn();
 console.log = jest.fn();
+const mockDate = new Date("2022-04-02T09:00:00.000Z");
 
 describe("Create SIM", () => {
   let iotCertificate: IoTCoreCertificate;
   let iotThing: IoTCoreThing;
 
   beforeAll(() => {
-    jest.useFakeTimers();
-    jest.setSystemTime(new Date("2022-04-02T09:00:00.000Z"));
+    jest.useFakeTimers(
+      {
+        now: mockDate.getTime(),
+      },
+    );
   });
 
   afterAll(() => {
@@ -58,8 +62,8 @@ describe("Create SIM", () => {
     PK: "IP#10.0.0.0",
     SK: "P#MQTT",
     crt: "pem",
-    ct: "2022-04-02T09:00:00.000Z",
-    ut: "2022-04-02T09:00:00.000Z",
+    ct: mockDate.toISOString(),
+    ut: mockDate.toISOString(),
     i: "123456789",
     ip: "10.0.0.0",
     prk: "private-key",
@@ -90,29 +94,24 @@ describe("Create SIM", () => {
         ],
       });
 
-      expect(console.error).toHaveBeenCalledWith("error parsing SQS record body: invalid JSON", expect.any(SyntaxError));
+      expect(console.error).toHaveBeenCalledWith("error parsing SQS record body", expect.any(SyntaxError));
       expect(console.log).not.toHaveBeenCalled();
     });
   });
 
-  describe("when device certificate is not properly generated", () => {
+  describe("when SIM certificate is not properly generated", () => {
     it("should log creation error", async () => {
       const error = "Certificate generation error";
       mockIotCoreCertCreate.mockRejectedValueOnce(error);
       mockPublishErrorToSnsTopic.mockResolvedValueOnce();
 
-      await handler(buildSqsEvent("123456789", "10.0.0.0"));
+      const event = buildSqsEvent("123456789", "10.0.0.0");
+      await handler(event);
 
       expect(mockIotCoreCertCreate).toHaveBeenCalled();
-      expect(mockPublishErrorToSnsTopic).toHaveBeenCalledWith(error, {
-        iccid: "123456789",
-        ip: "10.0.0.0",
-        createdTime: new Date("2022-04-02T09:00:00.000Z"),
-        updatedTime: new Date("2022-04-02T09:00:00.000Z"),
-      });
-      expect(console.error).toHaveBeenCalledTimes(2);
-      expect(console.error).toHaveBeenCalledWith("Error creating SIM", error);
-      expect(console.error).toHaveBeenNthCalledWith(2, "FAILURE device not created", { iccid: "123456789", ip: "10.0.0.0" });
+      expect(mockPublishErrorToSnsTopic).toHaveBeenCalledWith("SIM enable failed", error, undefined);
+      expect(console.error).toHaveBeenCalledTimes(1);
+      expect(console.error).toHaveBeenNthCalledWith(1, "FAILURE SIM not created", error, event.Records[0]);
       expect(console.log).not.toHaveBeenCalled();
     });
   });
@@ -129,17 +128,24 @@ describe("Create SIM", () => {
 
       expect(mockIotCoreCertCreate).toHaveBeenCalled();
       expect(mockIoTCoreCertAttachPolicy).toHaveBeenCalledWith("IOT_CORE_POLICY_NAME");
-      expect(mockPublishErrorToSnsTopic).toHaveBeenCalledWith(error, {
+      expect(mockPublishErrorToSnsTopic).toHaveBeenCalledWith("SIM enable failed", error, {
         iccid: "123456789",
         ip: "10.0.0.0",
-        createdTime: new Date("2022-04-02T09:00:00.000Z"),
-        updatedTime: new Date("2022-04-02T09:00:00.000Z"),
+        certificate: "pem",
+        privateKey: "private-key",
+        active: true,
+        createdTime: mockDate,
+        updatedTime: mockDate,
       });
-      expect(console.error).toHaveBeenCalledTimes(2);
-      expect(console.error).toHaveBeenNthCalledWith(1, "Error creating SIM", error);
-      expect(console.error).toHaveBeenNthCalledWith(2, "FAILURE device not created", {
+      expect(console.error).toHaveBeenCalledTimes(1);
+      expect(console.error).toHaveBeenNthCalledWith(1, "FAILURE SIM not created", error, {
         iccid: "123456789",
         ip: "10.0.0.0",
+        certificate: "pem",
+        privateKey: "private-key",
+        active: true,
+        createdTime: mockDate,
+        updatedTime: mockDate,
       });
       expect(console.log).not.toHaveBeenCalled();
     });
@@ -160,18 +166,26 @@ describe("Create SIM", () => {
       expect(mockIotCoreCertCreate).toHaveBeenCalled();
       expect(mockIoTCoreCertAttachPolicy).toHaveBeenCalledWith("IOT_CORE_POLICY_NAME");
       expect(mockIotCoreThingCreate).toHaveBeenCalledWith("123456789");
-      expect(mockPublishErrorToSnsTopic).toHaveBeenCalledWith(error, {
+      expect(mockPublishErrorToSnsTopic).toHaveBeenCalledWith("SIM enable failed", error, {
         iccid: "123456789",
         ip: "10.0.0.0",
         certificate: "pem",
         privateKey: "private-key",
-        createdTime: new Date("2022-04-02T09:00:00.000Z"),
-        updatedTime: new Date("2022-04-02T09:00:00.000Z"),
+        active: true,
+        createdTime: mockDate,
+        updatedTime: mockDate,
       });
       expect(mockDeleteIotCertificate).toHaveBeenCalledWith(iotCertificate);
-      expect(console.error).toHaveBeenCalledTimes(2);
-      expect(console.error).toHaveBeenCalledWith("Error creating SIM", error);
-      expect(console.error).toHaveBeenNthCalledWith(2, "FAILURE device not created", { iccid: "123456789", ip: "10.0.0.0" });
+      expect(console.error).toHaveBeenCalledTimes(1);
+      expect(console.error).toHaveBeenNthCalledWith(1, "FAILURE SIM not created", error, {
+        iccid: "123456789",
+        ip: "10.0.0.0",
+        certificate: "pem",
+        privateKey: "private-key",
+        active: true,
+        createdTime: mockDate,
+        updatedTime: mockDate,
+      });
       expect(console.log).not.toHaveBeenCalled();
     });
   });
@@ -195,19 +209,27 @@ describe("Create SIM", () => {
       expect(mockIoTCoreCertAttachPolicy).toHaveBeenCalledWith("IOT_CORE_POLICY_NAME");
       expect(mockIotCoreThingCreate).toHaveBeenCalledWith("123456789");
       expect(mockIoTCoreThingAttachCert).toHaveBeenCalledWith("arn");
-      expect(mockPublishErrorToSnsTopic).toHaveBeenCalledWith(error, {
+      expect(mockPublishErrorToSnsTopic).toHaveBeenCalledWith("SIM enable failed", error, {
         iccid: "123456789",
         ip: "10.0.0.0",
         certificate: "pem",
         privateKey: "private-key",
-        createdTime: new Date("2022-04-02T09:00:00.000Z"),
-        updatedTime: new Date("2022-04-02T09:00:00.000Z"),
+        active: true,
+        createdTime: mockDate,
+        updatedTime: mockDate,
       });
       expect(mockDeleteIotCertificate).toHaveBeenCalledWith(iotCertificate);
       expect(mockDeleteIotThing).toHaveBeenCalledWith(iotThing, iotCertificate);
-      expect(console.error).toHaveBeenCalledTimes(2);
-      expect(console.error).toHaveBeenCalledWith("Error creating SIM", error);
-      expect(console.error).toHaveBeenNthCalledWith(2, "FAILURE device not created", { iccid: "123456789", ip: "10.0.0.0" });
+      expect(console.error).toHaveBeenCalledTimes(1);
+      expect(console.error).toHaveBeenNthCalledWith(1, "FAILURE SIM not created", error, {
+        iccid: "123456789",
+        ip: "10.0.0.0",
+        certificate: "pem",
+        privateKey: "private-key",
+        active: true,
+        createdTime: mockDate,
+        updatedTime: mockDate,
+      });
       expect(console.log).not.toHaveBeenCalled();
     });
   });
@@ -233,25 +255,33 @@ describe("Create SIM", () => {
       expect(mockIotCoreThingCreate).toHaveBeenCalledWith("123456789");
       expect(mockIoTCoreThingAttachCert).toHaveBeenCalledWith("arn");
       expect(mockPutItem).toHaveBeenCalledWith({ TableName: "SIMS_TABLE", Item: marshall(dynamoDbSimItem) });
-      expect(mockPublishErrorToSnsTopic).toHaveBeenCalledWith(new Error(error), {
+      expect(mockPublishErrorToSnsTopic).toHaveBeenCalledWith("SIM enable failed", new Error(error), {
         iccid: "123456789",
         ip: "10.0.0.0",
         certificate: "pem",
         privateKey: "private-key",
-        createdTime: new Date("2022-04-02T09:00:00.000Z"),
-        updatedTime: new Date("2022-04-02T09:00:00.000Z"),
+        active: true,
+        createdTime: mockDate,
+        updatedTime: mockDate,
       });
       expect(mockDeleteIotCertificate).toHaveBeenCalledWith(iotCertificate);
       expect(mockDeleteIotThing).toHaveBeenCalledWith(iotThing, iotCertificate);
-      expect(console.error).toHaveBeenCalledTimes(2);
-      expect(console.error).toHaveBeenNthCalledWith(1, "Error creating SIM", new Error(error));
-      expect(console.error).toHaveBeenNthCalledWith(2, "FAILURE device not created", { iccid: "123456789", ip: "10.0.0.0" });
+      expect(console.error).toHaveBeenCalledTimes(1);
+      expect(console.error).toHaveBeenNthCalledWith(1, "FAILURE SIM not created", new Error(error), {
+        iccid: "123456789",
+        ip: "10.0.0.0",
+        certificate: "pem",
+        privateKey: "private-key",
+        active: true,
+        createdTime: mockDate,
+        updatedTime: mockDate,
+      });
       expect(console.log).not.toHaveBeenCalled();
     });
   });
 
   describe("when the creation process is completed sucessfully", () => {
-    it("should log device created successfully", async () => {
+    it("should log SIM created successfully", async () => {
       mockIotCoreCertCreate.mockResolvedValueOnce(iotCertificate);
       mockCertificateInstance();
       mockIoTCoreCertAttachPolicy.mockResolvedValueOnce({});
@@ -274,48 +304,35 @@ describe("Create SIM", () => {
         ip: "10.0.0.0",
         certificate: "pem",
         privateKey: "private-key",
-        createdTime: new Date("2022-04-02T09:00:00.000Z"),
-        updatedTime: new Date("2022-04-02T09:00:00.000Z"),
-      });
+        active: true,
+        createdTime: mockDate,
+        updatedTime: mockDate,
+      }, "SIM enabled");
       expect(mockPublishSuccessSummaryToSns).toHaveBeenCalledWith({
         iccid: "123456789",
         ip: "10.0.0.0",
         certificate: "pem",
         privateKey: "private-key",
-        createdTime: new Date("2022-04-02T09:00:00.000Z"),
-        updatedTime: new Date("2022-04-02T09:00:00.000Z"),
-      });
+        active: true,
+        createdTime: mockDate,
+        updatedTime: mockDate,
+      }, "SIM enabled");
       expect(mockDeleteIotCertificate).toHaveBeenCalledTimes(0);
       expect(mockDeleteIotThing).toHaveBeenCalledTimes(0);
       expect(console.error).not.toHaveBeenCalled();
       expect(console.log).toHaveBeenCalledTimes(1);
-      expect(console.log).toHaveBeenCalledWith("SUCCESS device created", { iccid: "123456789", ip: "10.0.0.0" });
+      expect(console.log).toHaveBeenCalledWith("SUCCESS SIM created", {
+        iccid: "123456789",
+        ip: "10.0.0.0",
+        certificate: "pem",
+        privateKey: "private-key",
+        active: true,
+        createdTime: mockDate,
+        updatedTime: mockDate,
+      });
     });
   });
 });
-
-function buildSqsEvent(iccid: string, ip: string): SQSEvent {
-  return {
-    Records: [
-      {
-        messageId: "id",
-        body: JSON.stringify({ iccid, ip }),
-        receiptHandle: "handle",
-        attributes: {
-          ApproximateReceiveCount: "0",
-          SentTimestamp: "timestamp",
-          SenderId: "sender-id",
-          ApproximateFirstReceiveTimestamp: "timestamp",
-        },
-        messageAttributes: {},
-        md5OfBody: "md5",
-        eventSource: "source",
-        eventSourceARN: "arn",
-        awsRegion: "region",
-      },
-    ],
-  };
-}
 
 function mockCertificateInstance(): void {
   const mockIoTCoreCertInstance = mockIoTCoreCert.mock.instances[0];

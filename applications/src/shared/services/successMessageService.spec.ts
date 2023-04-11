@@ -16,10 +16,13 @@ const mockPublishToSnsTopic = mocked(publishToSnsTopic);
 console.error = jest.fn();
 console.log = jest.fn();
 
+const mockDate = new Date("2022-04-02T09:00:00.000Z");
+
 describe("Success Message Service", () => {
   beforeAll(() => {
-    jest.useFakeTimers();
-    jest.setSystemTime(new Date("2022-04-02T09:00:00.000Z"));
+    jest.useFakeTimers({
+      now: mockDate.getTime(),
+    });
   });
 
   afterAll(() => {
@@ -42,12 +45,12 @@ describe("Success Message Service", () => {
           active: true,
           certificate: "pem",
           privateKey: "private-key",
-        }));
+        }), "enabled");
 
         const mqttMessage = {
           iccid: "123456789",
           ip: "10.0.0.0",
-          timestamp: 1648890000000,
+          timestamp: mockDate.getTime(),
           message: "enabled",
         };
         expect(mockPublishToMqtt).toHaveBeenCalledWith("registration", JSON.stringify(mqttMessage));
@@ -66,7 +69,7 @@ describe("Success Message Service", () => {
           active: true,
           certificate: "pem",
           privateKey: "private-key",
-        }));
+        }), "enabled");
 
         const mqttMessage = {
           iccid: "123456789",
@@ -93,7 +96,7 @@ describe("Success Message Service", () => {
           active: true,
           certificate: "pem",
           privateKey: "private-key",
-        }));
+        }), "enabled");
 
         const snsMessage = {
           iccid: "123456789",
@@ -117,7 +120,7 @@ describe("Success Message Service", () => {
           active: true,
           certificate: "pem",
           privateKey: "private-key",
-        }));
+        }), "enabled");
 
         const snsMessage = {
           iccid: "123456789",

@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Main stack for device onboarding service"
+Description: Main stack for device onboarding service
 Parameters:
   #=======================================================
   #
@@ -9,21 +9,21 @@ Parameters:
   ManagementApiUsername:
     Type: String
     Description: Management API username
-    MinLength: "1"
+    MinLength: 1
   ManagementApiPassword:
     Type: String
     Description: Management API password
     NoEcho: true
-    MinLength: "1"
+    MinLength: 1
   OpenvpnOnboardingUsername:
     Type: String
     Description: Username for OpenVPN
-    MinLength: "1"
+    MinLength: 1
   OpenvpnOnboardingPassword:
     Type: String
     NoEcho: true
     Description: Password for OpenVPN
-    MinLength: "1"
+    MinLength: 1
   LambdaCron:
     Description: Crontab that determines when CloudWatch Events runs the rule that triggers the Lambda function.
     Default: cron(0 1 * * ? *)
@@ -31,11 +31,11 @@ Parameters:
   APIGatewayStageName:
     Description: Stage name of API Gateway deployment
     Type: String
-    Default: "dev"
+    Default: dev
   SimOnboardingPath:
     Description: REST API Path for sim onboarding endpoint
     Type: String
-    Default: "onboarding"
+    Default: onboarding
   BreakoutRegion:
     Type: String
     Default: eu-central-1
@@ -52,19 +52,20 @@ Mappings:
   #=======================================================
   Configuration:
     BaseConfiguration:
-      CodebaseVersion: V1.0.0
-      CodebaseBucket: device-onboarding-prod-cloudformation-templates
-      CodebaseBucketRegion: eu-central-1
+      CodebaseVersion: replace_with_version
+      CodebaseBucket: replace_with_code_bucket_name
+      CodebaseBucketRegion: replace_with_code_bucket_region_name
       SimRetrievalLambdaZipFile: lambda/sim-retrieval.zip
       CreateSimLambdaZipFile: lambda/create-sim.zip
       DisableSimLambdaZipFile: lambda/disable-sim.zip
       DeviceOnboardingLambdaZipFile: lambda/device-onboarding.zip
-      OnboardingApiKeyName: device-onboarding-key
-      ApiEndpointSSMParamName: openvpn-onboarding-api-endpoint
-      ProxyServerSSMParamName: openvpn-onboarding-proxy-server
-      BreakoutRegionSSMParamName: breakout-region
-      OpenVPNCredentialsSecretName: open-source-device-onboarding-openvpn-credentials
-      UserDataBase64Script: IyEvYmluL2Jhc2gKYXB0LWdldCB1cGRhdGUgLXkKYXB0LWdldCBpbnN0YWxsIC15IG9wZW52cG4gbmV0LXRvb2xzIHVuemlwIGN1cmwgbmdpbngganEKIyBEb3dubG9hZCBhbmQgaW5zdGFsbCBBV1MKY3VybCAiaHR0cHM6Ly9hd3NjbGkuYW1hem9uYXdzLmNvbS9hd3NjbGktZXhlLWxpbnV4LXg4Nl82NC56aXAiIC1vICJhd3NjbGl2Mi56aXAiCnVuemlwIGF3c2NsaXYyLnppcAouL2F3cy9pbnN0YWxsCiMgR2V0IGJyZWFrb3V0IHJlZ2lvbgpicmVha291dF9yZWdpb249JChhd3Mgc3NtIGdldC1wYXJhbWV0ZXIgLS1uYW1lIGJyZWFrb3V0LXJlZ2lvbiB8IGpxIC1yICcuUGFyYW1ldGVyLlZhbHVlJykKIyBEb3dubG9hZCBhbmQgc2F2ZSBPcGVuVlBOIGNvbmZpZ3VyYXRpb24gYWNjb3JkaW5nIHRvIGJyZWFrb3V0IHJlZ2lvbgpjdXJsIGh0dHBzOi8vZGV2aWNlLW9uYm9hcmRpbmctcHJvZC1jbG91ZGZvcm1hdGlvbi10ZW1wbGF0ZXMuczMuZXUtY2VudHJhbC0xLmFtYXpvbmF3cy5jb20vVjEuMC4wL3ZwbkNvbmZpZy8kYnJlYWtvdXRfcmVnaW9uLmNvbmYgLW8gL2V0Yy9vcGVudnBuL29wZW52cG4tMW5jZS1jbGllbnQuY29uZgojIEdldCBhbmQgU2F2ZSBPcGVuVlBOIGNyZWRlbnRpYWxzIGZpbGUKb3BlbnZwbl9jcmVkZW50aWFscz0kKGF3cyBzZWNyZXRzbWFuYWdlciBnZXQtc2VjcmV0LXZhbHVlIC0tc2VjcmV0LWlkIG9wZW4tc291cmNlLWRldmljZS1vbmJvYXJkaW5nLW9wZW52cG4tY3JlZGVudGlhbHMgfCBqcSAtciAnLlNlY3JldFN0cmluZycpCmVjaG8gLWUgIiQoZWNobyAkb3BlbnZwbl9jcmVkZW50aWFscyB8IGpxIC1yICcudXNlcm5hbWUnKVxuJChlY2hvICRvcGVudnBuX2NyZWRlbnRpYWxzIHwganEgLXIgJy5wYXNzd29yZCcpIiA+IC9ldGMvb3BlbnZwbi9jcmVkZW50aWFscy50eHQKIyBTdGFydCBPcGVuVlBOIGFzIGEgc2VydmljZQpzdWRvIHN5c3RlbWN0bCBzdGFydCBvcGVudnBuQG9wZW52cG4tMW5jZS1jbGllbnQKIyBXYWl0IGZvciB0dW4wIGludGVyZmFjZSB0byBiZSBwcmVzZW50CmlmYz10dW4wCndoaWxlIHRydWU7IGRvCiAgICBpZmNvbmZpZyAkaWZjCiAgICByZXM9JD8KICAgIGlmIFsgJHJlcyAtZXEgMCBdOyB0aGVuCiAgICAgICBlY2hvIEludGVyZmFjZSAkaWZjIGlzIHByZXNlbnQKICAgICAgIGJyZWFrCiAgICBmaQogICAgZWNobyBXYWl0aW5nIGZvciBpbnRlcmZhY2UgJGlmYwogICAgc2xlZXAgMwpkb25lCiMgR2V0IE9wZW5WUE4gdHVubmVsIGlwIGFkZHJlc3MKaXBfdW5jdXQ9YGlmY29uZmlnICRpZmMgfCBncmVwIC1pIG5ldG1hc2tgCmlwX2VuZGN1dD0ke2lwX3VuY3V0IyppbmV0fQppcD0ke2lwX2VuZGN1dCUgIG5ldG1hc2sqfQojIFN0b3JlIE9wZW5WUE4gdHVubmVsIGlwIGFkZHJlc3MgaW4gU1NNCmF3cyBzc20gcHV0LXBhcmFtZXRlciAtLW5hbWUgb3BlbnZwbi1vbmJvYXJkaW5nLXByb3h5LXNlcnZlciAtLXZhbHVlICIkaXA6ODA4MCIgLS10eXBlIFN0cmluZyAtLW92ZXJ3cml0ZQojIEdldCBhbmQgZXhwb3J0IE5naW54IGNvbmZpZyBhcyBlbnYgdmFyaWFibGVzCmV4cG9ydCBPTkJPQVJESU5HX0VORFBPSU5UPSQoYXdzIHNzbSBnZXQtcGFyYW1ldGVyIC0tbmFtZSBvcGVudnBuLW9uYm9hcmRpbmctYXBpLWVuZHBvaW50IHwganEgLXIgJy5QYXJhbWV0ZXIuVmFsdWUnKQpleHBvcnQgT05CT0FSRElOR19YX0FQSV9LRVk9JChhd3MgYXBpZ2F0ZXdheSBnZXQtYXBpLWtleXMgLS1uYW1lLXF1ZXJ5IGRldmljZS1vbmJvYXJkaW5nLWtleSAtLWluY2x1ZGUtdmFsdWVzIHwganEgLXIgJy5pdGVtc1swXS52YWx1ZScpCmV4cG9ydCBOR0lOWF9QT1JUPTgwODAKZXhwb3J0IERPTExBUj0iJCIgIyBuZWVkZWQgdG8gZXNjYXBlIG5naW54IGJ1aWx0LWluIGVudiB2YXJpYWJsZXMKIyBEb3dubG9hZCBOZ2lueCB0ZW1wbGF0ZSBhbmQgc2V0IHRoZSBzZXJ2ZXIKY3VybCBodHRwczovL2RldmljZS1vbmJvYXJkaW5nLXByb2QtY2xvdWRmb3JtYXRpb24tdGVtcGxhdGVzLnMzLmV1LWNlbnRyYWwtMS5hbWF6b25hd3MuY29tL1YxLjAuMC9uZ2lueENvbmZpZy9uZ2lueC5jb25mIC1vIC9ldGMvbmdpbngvY29uZi5kL215LXRlbXBsYXRlLmNvbmYudGVtcGxhdGUKZW52c3Vic3QgPCAvZXRjL25naW54L2NvbmYuZC9teS10ZW1wbGF0ZS5jb25mLnRlbXBsYXRlID4gL2V0Yy9uZ2lueC9zaXRlcy1hdmFpbGFibGUvZGVmYXVsdApzdWRvIGNobW9kIDY0NCAvZXRjL25naW54L3NpdGVzLWF2YWlsYWJsZS9kZWZhdWx0CiMgUnVuIE5naW54IHNlcnZlciBhcyBhIHNlcnZpY2UKc3VkbyBzeXN0ZW1jdGwgc3RvcCBuZ2lueApzdWRvIHN5c3RlbWN0bCBzdGFydCBuZ2lueApzdWRvIHN5c3RlbWN0bCBlbmFibGUgbmdpbngKIyBSZWJvb3QgbWFjaGluZQpyZWJvb3QK
+      OnboardingApiKeyName: replace_with_onboarding_api_key_name
+      ApiGatewayUrlSSMParamName: replace_with_ssm_param_name_to_api_gateway_url
+      OnboardingPathSSMParamName: replace_with_ssm_param_name_to_onboarding_path
+      ProxyServerSSMParamName: replace_with_ssm_param_name_to_proxy_server
+      BreakoutRegionSSMParamName: replace_with_ssm_param_name_to_breakout_region
+      OpenVPNCredentialsSecretName: replace_with_secret_name_to_openvpn_creds
+      UserDataBase64Script: replace_with_user_data_base_64_script
 
 Resources:
   #=======================================================
@@ -72,471 +73,686 @@ Resources:
   #                   CloudFormation stacks
   #
   #=======================================================
-  SQSResourcesStack:
-    Type: "AWS::CloudFormation::Stack"
+  IOTCorePolicyStack:
+    Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Join
-        - ""
-        - - https://
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucket
-          - .s3-
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucketRegion
-          - .amazonaws.com/
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseVersion
-          - /sqs.yaml
+      TemplateURL:
+        Fn::Join:
+          - ""
+          - - https://
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucket
+            - .s3-
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucketRegion
+            - .amazonaws.com/
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseVersion
+            - /iot-core-policy.yaml
+
+  SQSResourcesStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        Fn::Join:
+          - ""
+          - - https://
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucket
+            - .s3-
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucketRegion
+            - .amazonaws.com/
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseVersion
+            - /sqs.yaml
 
   SimTableStack:
-    Type: "AWS::CloudFormation::Stack"
+    Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Join
-        - ""
-        - - https://
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucket
-          - .s3-
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucketRegion
-          - .amazonaws.com/
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseVersion
-          - /sim-table.yaml
+      TemplateURL:
+        Fn::Join:
+          - ""
+          - - https://
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucket
+            - .s3-
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucketRegion
+            - .amazonaws.com/
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseVersion
+            - /sim-table.yaml
 
   LambdaSimRetrievalStack:
-    Type: "AWS::CloudFormation::Stack"
+    Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
-        ManagementApiCredentialsSecretARN: !GetAtt SecretsManagerStack.Outputs.ManagementApiCredentialsSecretARN
-        LambdaCron: !Ref LambdaCron
-        SimCreateQueueARN: !GetAtt SQSResourcesStack.Outputs.SimCreateQueueARN
-        SimCreateQueueURL: !GetAtt SQSResourcesStack.Outputs.SimCreateQueueURL
-        SimDisableQueueARN: !GetAtt SQSResourcesStack.Outputs.SimDisableQueueARN
-        SimDisableQueueURL: !GetAtt SQSResourcesStack.Outputs.SimDisableQueueURL
-        SimTableName: !GetAtt SimTableStack.Outputs.SimTableName
-        SimTableARN: !GetAtt SimTableStack.Outputs.SimTableArn
-        SnsFailureSummaryTopicARN: !GetAtt SNSResourcesStack.Outputs.SNSFailureTopicArn
-        S3LocalBucketArn: !GetAtt S3BucketAndLocalFilesStack.Outputs.LocalBucketArn
-        S3LocalBucketName: !GetAtt S3BucketAndLocalFilesStack.Outputs.LocalBucketName
-        SimRetrievalLambdaZipPath: !Join
+        ManagementApiCredentialsSecretARN:
+          Fn::GetAtt:
+            - SecretsManagerStack
+            - Outputs.ManagementApiCredentialsSecretARN
+        LambdaCron:
+          Ref: LambdaCron
+        SimCreateQueueARN:
+          Fn::GetAtt:
+            - SQSResourcesStack
+            - Outputs.SimCreateQueueARN
+        SimCreateQueueURL:
+          Fn::GetAtt:
+            - SQSResourcesStack
+            - Outputs.SimCreateQueueURL
+        SimDisableQueueARN:
+          Fn::GetAtt:
+            - SQSResourcesStack
+            - Outputs.SimDisableQueueARN
+        SimDisableQueueURL:
+          Fn::GetAtt:
+            - SQSResourcesStack
+            - Outputs.SimDisableQueueURL
+        SimTableName:
+          Fn::GetAtt:
+            - SimTableStack
+            - Outputs.SimTableName
+        SimTableARN:
+          Fn::GetAtt:
+            - SimTableStack
+            - Outputs.SimTableArn
+        SnsFailureSummaryTopicARN:
+          Fn::GetAtt:
+            - SNSResourcesStack
+            - Outputs.SNSFailureTopicArn
+        S3LocalBucketArn:
+          Fn::GetAtt:
+            - S3BucketAndLocalFilesStack
+            - Outputs.LocalBucketArn
+        S3LocalBucketName:
+          Fn::GetAtt:
+            - S3BucketAndLocalFilesStack
+            - Outputs.LocalBucketName
+        SimRetrievalLambdaZipPath:
+          Fn::Join:
+            - ""
+            - - Fn::FindInMap:
+                  - Configuration
+                  - BaseConfiguration
+                  - CodebaseVersion
+              - /
+              - Fn::FindInMap:
+                  - Configuration
+                  - BaseConfiguration
+                  - SimRetrievalLambdaZipFile
+      TemplateURL:
+        Fn::Join:
           - ""
-          - - !FindInMap [Configuration, BaseConfiguration, CodebaseVersion]
-            - /
-            - !FindInMap [Configuration, BaseConfiguration, SimRetrievalLambdaZipFile]
-      TemplateURL: !Join
-        - ""
-        - - https://
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucket
-          - .s3-
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucketRegion
-          - .amazonaws.com/
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseVersion
-          - /sim-retrieval.yaml
+          - - https://
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucket
+            - .s3-
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucketRegion
+            - .amazonaws.com/
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseVersion
+            - /sim-retrieval.yaml
 
   LambdaCreateSimStack:
-    Type: "AWS::CloudFormation::Stack"
+    Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
-        IotCorePolicyName: !GetAtt IOTCorePolicyStack.Outputs.IOTCorePolicyName
-        SnsFailureSummaryTopicARN: !GetAtt SNSResourcesStack.Outputs.SNSFailureTopicArn
-        SnsSuccessSummaryTopicARN: !GetAtt SNSResourcesStack.Outputs.SNSSuccessTopicArn
-        SimsTableName: !GetAtt SimTableStack.Outputs.SimTableName
-        SimTableARN: !GetAtt SimTableStack.Outputs.SimTableArn
-        SqsQueueARN: !GetAtt SQSResourcesStack.Outputs.SimCreateQueueARN
-        S3LocalBucketArn: !GetAtt S3BucketAndLocalFilesStack.Outputs.LocalBucketArn
-        S3LocalBucketName: !GetAtt S3BucketAndLocalFilesStack.Outputs.LocalBucketName
-        CreateSimLambdaZipPath: !Join
+        IotCorePolicyName:
+          Fn::GetAtt:
+            - IOTCorePolicyStack
+            - Outputs.IOTCorePolicyName
+        SnsFailureSummaryTopicARN:
+          Fn::GetAtt:
+            - SNSResourcesStack
+            - Outputs.SNSFailureTopicArn
+        SnsSuccessSummaryTopicARN:
+          Fn::GetAtt:
+            - SNSResourcesStack
+            - Outputs.SNSSuccessTopicArn
+        SimsTableName:
+          Fn::GetAtt:
+            - SimTableStack
+            - Outputs.SimTableName
+        SimTableARN:
+          Fn::GetAtt:
+            - SimTableStack
+            - Outputs.SimTableArn
+        SqsQueueARN:
+          Fn::GetAtt:
+            - SQSResourcesStack
+            - Outputs.SimCreateQueueARN
+        S3LocalBucketArn:
+          Fn::GetAtt:
+            - S3BucketAndLocalFilesStack
+            - Outputs.LocalBucketArn
+        S3LocalBucketName:
+          Fn::GetAtt:
+            - S3BucketAndLocalFilesStack
+            - Outputs.LocalBucketName
+        CreateSimLambdaZipPath:
+          Fn::Join:
+            - ""
+            - - Fn::FindInMap:
+                  - Configuration
+                  - BaseConfiguration
+                  - CodebaseVersion
+              - /
+              - Fn::FindInMap:
+                  - Configuration
+                  - BaseConfiguration
+                  - CreateSimLambdaZipFile
+      TemplateURL:
+        Fn::Join:
           - ""
-          - - !FindInMap [Configuration, BaseConfiguration, CodebaseVersion]
-            - /
-            - !FindInMap [Configuration, BaseConfiguration, CreateSimLambdaZipFile]
-      TemplateURL: !Join
-        - ""
-        - - https://
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucket
-          - .s3-
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucketRegion
-          - .amazonaws.com/
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseVersion
-          - /create-sim.yaml
+          - - https://
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucket
+            - .s3-
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucketRegion
+            - .amazonaws.com/
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseVersion
+            - /create-sim.yaml
 
   LambdaDisableSimStack:
-    Type: "AWS::CloudFormation::Stack"
+    Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
-        IotCorePolicyName: !GetAtt IOTCorePolicyStack.Outputs.IOTCorePolicyName
-        SnsFailureSummaryTopicARN: !GetAtt SNSResourcesStack.Outputs.SNSFailureTopicArn
-        SnsSuccessSummaryTopicARN: !GetAtt SNSResourcesStack.Outputs.SNSSuccessTopicArn
-        SimsTableName: !GetAtt SimTableStack.Outputs.SimTableName
-        SimTableARN: !GetAtt SimTableStack.Outputs.SimTableArn
-        SqsQueueARN: !GetAtt SQSResourcesStack.Outputs.SimDisableQueueARN
-        S3LocalBucketArn: !GetAtt S3BucketAndLocalFilesStack.Outputs.LocalBucketArn
-        S3LocalBucketName: !GetAtt S3BucketAndLocalFilesStack.Outputs.LocalBucketName
-        DisableSimLambdaZipPath: !Join
+        SnsFailureSummaryTopicARN:
+          Fn::GetAtt:
+            - SNSResourcesStack
+            - Outputs.SNSFailureTopicArn
+        SnsSuccessSummaryTopicARN:
+          Fn::GetAtt:
+            - SNSResourcesStack
+            - Outputs.SNSSuccessTopicArn
+        SimsTableName:
+          Fn::GetAtt:
+            - SimTableStack
+            - Outputs.SimTableName
+        SimTableARN:
+          Fn::GetAtt:
+            - SimTableStack
+            - Outputs.SimTableArn
+        SqsQueueARN:
+          Fn::GetAtt:
+            - SQSResourcesStack
+            - Outputs.SimDisableQueueARN
+        S3LocalBucketArn:
+          Fn::GetAtt:
+            - S3BucketAndLocalFilesStack
+            - Outputs.LocalBucketArn
+        S3LocalBucketName:
+          Fn::GetAtt:
+            - S3BucketAndLocalFilesStack
+            - Outputs.LocalBucketName
+        DisableSimLambdaZipPath:
+          Fn::Join:
+            - ""
+            - - Fn::FindInMap:
+                  - Configuration
+                  - BaseConfiguration
+                  - CodebaseVersion
+              - /
+              - Fn::FindInMap:
+                  - Configuration
+                  - BaseConfiguration
+                  - DisableSimLambdaZipFile
+      TemplateURL:
+        Fn::Join:
           - ""
-          - - !FindInMap [Configuration, BaseConfiguration, CodebaseVersion]
-            - /
-            - !FindInMap [Configuration, BaseConfiguration, DisableSimLambdaZipFile]
-      TemplateURL: !Join
-        - ""
-        - - https://
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucket
-          - .s3-
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucketRegion
-          - .amazonaws.com/
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseVersion
-          - /disable-sim.yaml
+          - - https://
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucket
+            - .s3-
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucketRegion
+            - .amazonaws.com/
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseVersion
+            - /disable-sim.yaml
 
   IotCoreEndpointProviderStack:
-    Type: "AWS::CloudFormation::Stack"
+    Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Join
-        - ""
-        - - https://
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucket
-          - .s3-
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucketRegion
-          - .amazonaws.com/
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseVersion
-          - /iot-core-endpoint-provider.yaml
+      TemplateURL:
+        Fn::Join:
+          - ""
+          - - https://
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucket
+            - .s3-
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucketRegion
+            - .amazonaws.com/
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseVersion
+            - /iot-core-endpoint-provider.yaml
 
   LambdaDeviceOnboardingStack:
-    Type: "AWS::CloudFormation::Stack"
+    Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
-        SimTableName: !GetAtt SimTableStack.Outputs.SimTableName
-        SimTableARN: !GetAtt SimTableStack.Outputs.SimTableArn
-        S3LocalBucketArn: !GetAtt S3BucketAndLocalFilesStack.Outputs.LocalBucketArn
-        S3LocalBucketName: !GetAtt S3BucketAndLocalFilesStack.Outputs.LocalBucketName
-        IoTCoreEndpointURL: !GetAtt IotCoreEndpointProviderStack.Outputs.IotEndpointAddress
-        DeviceOnboardingLambdaZipPath: !Join
+        SimTableName:
+          Fn::GetAtt:
+            - SimTableStack
+            - Outputs.SimTableName
+        SimTableARN:
+          Fn::GetAtt:
+            - SimTableStack
+            - Outputs.SimTableArn
+        S3LocalBucketArn:
+          Fn::GetAtt:
+            - S3BucketAndLocalFilesStack
+            - Outputs.LocalBucketArn
+        S3LocalBucketName:
+          Fn::GetAtt:
+            - S3BucketAndLocalFilesStack
+            - Outputs.LocalBucketName
+        IoTCoreEndpointURL:
+          Fn::GetAtt:
+            - IotCoreEndpointProviderStack
+            - Outputs.IotEndpointAddress
+        DeviceOnboardingLambdaZipPath:
+          Fn::Join:
+            - ""
+            - - Fn::FindInMap:
+                  - Configuration
+                  - BaseConfiguration
+                  - CodebaseVersion
+              - /
+              - Fn::FindInMap:
+                  - Configuration
+                  - BaseConfiguration
+                  - DeviceOnboardingLambdaZipFile
+      TemplateURL:
+        Fn::Join:
           - ""
-          - - !FindInMap [Configuration, BaseConfiguration, CodebaseVersion]
-            - /
-            - !FindInMap [Configuration, BaseConfiguration, DeviceOnboardingLambdaZipFile]
-      TemplateURL: !Join
-        - ""
-        - - https://
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucket
-          - .s3-
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucketRegion
-          - .amazonaws.com/
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseVersion
-          - /device-onboarding.yaml
+          - - https://
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucket
+            - .s3-
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucketRegion
+            - .amazonaws.com/
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseVersion
+            - /device-onboarding.yaml
 
   ApiGatewayStack:
-    Type: "AWS::CloudFormation::Stack"
+    Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
-        LambdaNameDeviceOnboarding: !GetAtt LambdaDeviceOnboardingStack.Outputs.LambdaNameDeviceOnboarding
-        LambdaARNDeviceOnboarding: !GetAtt LambdaDeviceOnboardingStack.Outputs.LambdaARNDeviceOnboarding
-        OnboardingApiKeyName: !FindInMap [Configuration, BaseConfiguration, OnboardingApiKeyName]
-        APIGatewayStageName: !Ref APIGatewayStageName
-        SimOnboardingPath: !Ref SimOnboardingPath
-        PublicIpAddress: !GetAtt NetworkResourcesStack.Outputs.PublicIpAddress
-      TemplateURL: !Join
-        - ""
-        - - https://
-          - !FindInMap
+        LambdaNameDeviceOnboarding:
+          Fn::GetAtt:
+            - LambdaDeviceOnboardingStack
+            - Outputs.LambdaNameDeviceOnboarding
+        LambdaARNDeviceOnboarding:
+          Fn::GetAtt:
+            - LambdaDeviceOnboardingStack
+            - Outputs.LambdaARNDeviceOnboarding
+        OnboardingApiKeyName:
+          Fn::FindInMap:
             - Configuration
             - BaseConfiguration
-            - CodebaseBucket
-          - .s3-
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucketRegion
-          - .amazonaws.com/
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseVersion
-          - /api-gateway.yaml
+            - OnboardingApiKeyName
+        APIGatewayStageName:
+          Ref: APIGatewayStageName
+        SimOnboardingPath:
+          Ref: SimOnboardingPath
+        PublicIpAddress:
+          Fn::GetAtt:
+            - NetworkResourcesStack
+            - Outputs.PublicIpAddress
+      TemplateURL:
+        Fn::Join:
+          - ""
+          - - https://
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucket
+            - .s3-
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucketRegion
+            - .amazonaws.com/
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseVersion
+            - /api-gateway.yaml
 
   SSMResourcesStack:
-    Type: "AWS::CloudFormation::Stack"
+    Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
-        OnboardingEndpointUrl: !GetAtt ApiGatewayStack.Outputs.OnboardingEndpointUrl
-        ApiEndpointSSMParamName: !FindInMap
-          - Configuration
-          - BaseConfiguration
-          - ApiEndpointSSMParamName
-        ProxyServerSSMParamName: !FindInMap
-          - Configuration
-          - BaseConfiguration
-          - ProxyServerSSMParamName
-        BreakoutRegionSSMParamName: !FindInMap
-          - Configuration
-          - BaseConfiguration
-          - BreakoutRegionSSMParamName
-        BreakoutRegion: !Ref BreakoutRegion
-      TemplateURL: !Join
-        - ""
-        - - https://
-          - !FindInMap
+        ApiGatewayUrl:
+          Fn::GetAtt:
+            - ApiGatewayStack
+            - Outputs.ApiGatewayUrl
+        ApiGatewayUrlSSMParamName:
+          Fn::FindInMap:
             - Configuration
             - BaseConfiguration
-            - CodebaseBucket
-          - .s3-
-          - !FindInMap
+            - ApiGatewayUrlSSMParamName
+        OnboardingPath:
+          Fn::Sub: ${APIGatewayStageName}/${SimOnboardingPath}
+        OnboardingPathSSMParamName:
+          Fn::FindInMap:
             - Configuration
             - BaseConfiguration
-            - CodebaseBucketRegion
-          - .amazonaws.com/
-          - !FindInMap
+            - OnboardingPathSSMParamName
+        ProxyServerSSMParamName:
+          Fn::FindInMap:
             - Configuration
             - BaseConfiguration
-            - CodebaseVersion
-          - /ssm.yaml
+            - ProxyServerSSMParamName
+        BreakoutRegionSSMParamName:
+          Fn::FindInMap:
+            - Configuration
+            - BaseConfiguration
+            - BreakoutRegionSSMParamName
+        BreakoutRegion:
+          Ref: BreakoutRegion
+      TemplateURL:
+        Fn::Join:
+          - ""
+          - - https://
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucket
+            - .s3-
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucketRegion
+            - .amazonaws.com/
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseVersion
+            - /ssm.yaml
 
   SNSResourcesStack:
-    Type: "AWS::CloudFormation::Stack"
+    Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Join
-        - ""
-        - - https://
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucket
-          - .s3-
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucketRegion
-          - .amazonaws.com/
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseVersion
-          - /sns.yaml
-
-  IOTCorePolicyStack:
-    Type: "AWS::CloudFormation::Stack"
-    Properties:
-      TemplateURL: !Join
-        - ""
-        - - https://
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucket
-          - .s3-
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucketRegion
-          - .amazonaws.com/
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseVersion
-          - /iot-core-policy.yaml
+      TemplateURL:
+        Fn::Join:
+          - ""
+          - - https://
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucket
+            - .s3-
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucketRegion
+            - .amazonaws.com/
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseVersion
+            - /sns.yaml
 
   NetworkResourcesStack:
-    Type: "AWS::CloudFormation::Stack"
+    Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Join
-        - ""
-        - - https://
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucket
-          - .s3-
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucketRegion
-          - .amazonaws.com/
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseVersion
-          - /network.yaml
+      TemplateURL:
+        Fn::Join:
+          - ""
+          - - https://
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucket
+            - .s3-
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucketRegion
+            - .amazonaws.com/
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseVersion
+            - /network.yaml
 
   AutoScalingAndLaunchTemplateStack:
-    Type: "AWS::CloudFormation::Stack"
+    Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
-        EC2SecurityGroupId: !GetAtt NetworkResourcesStack.Outputs.EC2SecurityGroupId
-        VPCPrivateSubnetId: !GetAtt NetworkResourcesStack.Outputs.VPCPrivateSubnetId
-        VPCPrivateSubnetAvailabilityZone: !GetAtt NetworkResourcesStack.Outputs.VPCPrivateSubnetAvailabilityZone
-        EC2UserData: !FindInMap
-          - Configuration
-          - BaseConfiguration
-          - UserDataBase64Script
-      TemplateURL: !Join
-        - ""
-        - - https://
-          - !FindInMap
+        EC2SecurityGroupId:
+          Fn::GetAtt:
+            - NetworkResourcesStack
+            - Outputs.EC2SecurityGroupId
+        VPCPrivateSubnetId:
+          Fn::GetAtt:
+            - NetworkResourcesStack
+            - Outputs.VPCPrivateSubnetId
+        VPCPrivateSubnetAvailabilityZone:
+          Fn::GetAtt:
+            - NetworkResourcesStack
+            - Outputs.VPCPrivateSubnetAvailabilityZone
+        EC2UserData:
+          Fn::FindInMap:
             - Configuration
             - BaseConfiguration
-            - CodebaseBucket
-          - .s3-
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucketRegion
-          - .amazonaws.com/
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseVersion
-          - /autoscaling.yaml
+            - UserDataBase64Script
+      TemplateURL:
+        Fn::Join:
+          - ""
+          - - https://
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucket
+            - .s3-
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucketRegion
+            - .amazonaws.com/
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseVersion
+            - /autoscaling.yaml
 
   S3BucketAndLocalFilesStack:
-    Type: "AWS::CloudFormation::Stack"
+    Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
         S3CodeOriginBucket:
-          !FindInMap [Configuration, BaseConfiguration, CodebaseBucket]
-        SimRetrievalLambdaZipPath: !Join
-          - ""
-          - - !FindInMap [Configuration, BaseConfiguration, CodebaseVersion]
-            - /
-            - !FindInMap [Configuration, BaseConfiguration, SimRetrievalLambdaZipFile]
-        CreateSimLambdaZipPath: !Join
-          - ""
-          - - !FindInMap [Configuration, BaseConfiguration, CodebaseVersion]
-            - /
-            - !FindInMap [Configuration, BaseConfiguration, CreateSimLambdaZipFile]
-        DisableSimLambdaZipPath: !Join
-          - ""
-          - - !FindInMap [Configuration, BaseConfiguration, CodebaseVersion]
-            - /
-            - !FindInMap [Configuration, BaseConfiguration, DisableSimLambdaZipFile]
-        DeviceOnboardingLambdaZipPath: !Join
-          - ""
-          - - !FindInMap [Configuration, BaseConfiguration, CodebaseVersion]
-            - /
-            - !FindInMap [Configuration, BaseConfiguration, DeviceOnboardingLambdaZipFile]
-      TemplateURL: !Join
-        - ""
-        - - https://
-          - !FindInMap
+          Fn::FindInMap:
             - Configuration
             - BaseConfiguration
             - CodebaseBucket
-          - .s3-
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucketRegion
-          - .amazonaws.com/
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseVersion
-          - /s3-lambda-code.yaml
+        SimRetrievalLambdaZipPath:
+          Fn::Join:
+            - ""
+            - - Fn::FindInMap:
+                  - Configuration
+                  - BaseConfiguration
+                  - CodebaseVersion
+              - /
+              - Fn::FindInMap:
+                  - Configuration
+                  - BaseConfiguration
+                  - SimRetrievalLambdaZipFile
+        CreateSimLambdaZipPath:
+          Fn::Join:
+            - ""
+            - - Fn::FindInMap:
+                  - Configuration
+                  - BaseConfiguration
+                  - CodebaseVersion
+              - /
+              - Fn::FindInMap:
+                  - Configuration
+                  - BaseConfiguration
+                  - CreateSimLambdaZipFile
+        DisableSimLambdaZipPath:
+          Fn::Join:
+            - ""
+            - - Fn::FindInMap:
+                  - Configuration
+                  - BaseConfiguration
+                  - CodebaseVersion
+              - /
+              - Fn::FindInMap:
+                  - Configuration
+                  - BaseConfiguration
+                  - DisableSimLambdaZipFile
+        DeviceOnboardingLambdaZipPath:
+          Fn::Join:
+            - ""
+            - - Fn::FindInMap:
+                  - Configuration
+                  - BaseConfiguration
+                  - CodebaseVersion
+              - /
+              - Fn::FindInMap:
+                  - Configuration
+                  - BaseConfiguration
+                  - DeviceOnboardingLambdaZipFile
+      TemplateURL:
+        Fn::Join:
+          - ""
+          - - https://
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucket
+            - .s3-
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucketRegion
+            - .amazonaws.com/
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseVersion
+            - /s3-lambda-code.yaml
 
   SecretsManagerStack:
-    Type: "AWS::CloudFormation::Stack"
+    Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
-        ManagementApiUsername: !Ref ManagementApiUsername
-        ManagementApiPassword: !Ref ManagementApiPassword
-        OpenvpnOnboardingUsername: !Ref OpenvpnOnboardingUsername
-        OpenvpnOnboardingPassword: !Ref OpenvpnOnboardingPassword
-        OpenVPNCredentialsSecretName: !FindInMap [Configuration, BaseConfiguration, OpenVPNCredentialsSecretName]
-      TemplateURL: !Join
-        - ""
-        - - https://
-          - !FindInMap
+        ManagementApiUsername:
+          Ref: ManagementApiUsername
+        ManagementApiPassword:
+          Ref: ManagementApiPassword
+        OpenvpnOnboardingUsername:
+          Ref: OpenvpnOnboardingUsername
+        OpenvpnOnboardingPassword:
+          Ref: OpenvpnOnboardingPassword
+        OpenVPNCredentialsSecretName:
+          Fn::FindInMap:
             - Configuration
             - BaseConfiguration
-            - CodebaseBucket
-          - .s3-
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucketRegion
-          - .amazonaws.com/
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseVersion
-          - /secrets-manager.yaml
+            - OpenVPNCredentialsSecretName
+      TemplateURL:
+        Fn::Join:
+          - ""
+          - - https://
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucket
+            - .s3-
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucketRegion
+            - .amazonaws.com/
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseVersion
+            - /secrets-manager.yaml
 
   LambdaInvokeStack:
-    Type: "AWS::CloudFormation::Stack"
+    Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
-        FunctionName: !GetAtt LambdaSimRetrievalStack.Outputs.FunctionName
-      TemplateURL: !Join
-        - ""
-        - - https://
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucket
-          - .s3-
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseBucketRegion
-          - .amazonaws.com/
-          - !FindInMap
-            - Configuration
-            - BaseConfiguration
-            - CodebaseVersion
-          - /lambda-invoke.yaml
+        FunctionName:
+          Fn::GetAtt:
+            - LambdaSimRetrievalStack
+            - Outputs.FunctionName
+      TemplateURL:
+        Fn::Join:
+          - ""
+          - - https://
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucket
+            - .s3-
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseBucketRegion
+            - .amazonaws.com/
+            - Fn::FindInMap:
+                - Configuration
+                - BaseConfiguration
+                - CodebaseVersion
+            - /lambda-invoke.yaml

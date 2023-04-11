@@ -1,6 +1,7 @@
 import { SQS, SendMessageBatchCommand } from "@aws-sdk/client-sqs";
 import { mockClient } from "aws-sdk-client-mock";
-import { sendSQSBatchMessages } from "../utils/sqsHelper";
+import { buildSqsEvent } from "../test/sqs.fixture";
+import { parseSimRetrievalSqsBody, sendSQSBatchMessages } from "../utils/sqsHelper";
 
 console.log = jest.fn();
 console.error = jest.fn();
@@ -125,6 +126,46 @@ describe("SQS Helper", () => {
         expect(console.log).toHaveBeenNthCalledWith(1, "Sending 5 SQS message(s) in chunks of 10");
         expect(console.log).toHaveBeenNthCalledWith(2, "Sending chunk from message 1 to 5", messages);
         expect(console.error).toHaveBeenCalledWith("Error sending messages to SQS", new Error("SQS error"));
+      });
+    });
+  });
+
+  describe("parseSimRetrievalSqsBody", () => {
+    describe("when the iccid is missing", () => {
+      it("should throw exception", () => {
+        const event = buildSqsEvent(undefined, "10.0.0.0");
+
+        try {
+          parseSimRetrievalSqsBody(event.Records[0]);
+          fail("Test should throw error");
+        } catch (error) {
+          expect(error).toStrictEqual(new Error("No iccid found in the SQS message body"));
+        }
+      });
+    });
+
+    describe("when the ip is missing", () => {
+      it("should throw exception", () => {
+        const event = buildSqsEvent("123456789", undefined);
+
+        try {
+          parseSimRetrievalSqsBody(event.Records[0]);
+          fail("Test should throw error");
+        } catch (error) {
+          expect(error).toStrictEqual(new Error("No ip found in the SQS message body"));
+        }
+      });
+    });
+
+    describe("when the sqs record is valid", () => {
+      it("should return an object with ip and iccid", () => {
+        const event = buildSqsEvent("123456789", "10.0.0.0");
+        const result = parseSimRetrievalSqsBody(event.Records[0]);
+
+        expect(result).toStrictEqual({
+          ip: "10.0.0.0",
+          iccid: "123456789",
+        });
       });
     });
   });
