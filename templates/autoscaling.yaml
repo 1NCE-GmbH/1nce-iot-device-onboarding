@@ -23,9 +23,16 @@ Parameters:
   VPCPrivateSubnetAvailabilityZone:
     Type: String
     Description: VPC Private Subnet Availability zone
-  EC2UserData:
+  SnsFailureSummaryTopicARN:
     Type: String
-    Description: User Data script
+    Description: SNS topic to post summary message on failure case
+  SnsSuccessSummaryTopicARN:
+    Type: String
+    Description: SNS topic to post summary message on success case
+  S3CodeOriginBucket:
+    Description: Public S3 bucket.
+    Default: open-source-device-onboarding
+    Type: String
 Resources:
   #=======================================================
   #
@@ -72,6 +79,18 @@ Resources:
               - apigateway:GET
             Resource:
               - Fn::Sub: arn:aws:apigateway:${AWS::Region}::/apikeys
+          - Effect: Allow
+            Action:
+              - sns:Publish
+            Resource:
+              - Ref: SnsSuccessSummaryTopicARN
+              - Ref: SnsFailureSummaryTopicARN
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+            Resource:
+              - Fn::Sub: arn:aws:s3:::${S3CodeOriginBucket}
+              - Fn::Sub: arn:aws:s3:::${S3CodeOriginBucket}/*
 
   IAMInstanceProfile:
     Type: AWS::IAM::InstanceProfile
@@ -112,8 +131,7 @@ Resources:
     Properties:
       LaunchTemplateName: openvpn-onboarding-launch-template
       LaunchTemplateData:
-        UserData:
-          Ref: EC2UserData
+        UserData: replace_with_user_data_base_64_script
         IamInstanceProfile:
           Arn:
             Fn::GetAtt:

@@ -1,6 +1,6 @@
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { fromItem, keyFromIp, type IDynamoSim, type SIM } from "../types/sim";
-import { getItem, query, updateItem } from "../utils/dynamoHelper";
+import { getItem, scan, updateItem } from "../utils/dynamoHelper";
 import { ConditionalCheckFailedException, type UpdateItemCommandInput, type GetItemCommandInput } from "@aws-sdk/client-dynamodb";
 import { NotFoundError } from "../types/error";
 
@@ -8,7 +8,7 @@ const SIMS_TABLE = process.env.SIMS_TABLE as string;
 
 export async function getDbSims(): Promise<SIM[]> {
   try {
-    const dbSims = await query({ TableName: SIMS_TABLE });
+    const dbSims = await scan({ TableName: SIMS_TABLE });
 
     return (dbSims ?? []).map(sim => fromItem(unmarshall(sim) as IDynamoSim));
   } catch (error) {

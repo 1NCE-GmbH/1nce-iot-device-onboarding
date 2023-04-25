@@ -1,5 +1,42 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: SNS topics for openvpn onboarding notifications
+Parameters:
+  #=======================================================
+  #
+  #            CloudFormation Parameters
+  #
+  #=======================================================
+  SNSFailureTopicName:
+    Description: Name for SNS where the onboarding failures will be published
+    Type: String
+  SNSSuccessTopicName:
+    Description: Name for SNS where the onboarding success events will be published
+    Type: String
+  SNSFailureTopicSubscriptionEmail:
+    Description: Email for Failure Topic Subscription. Empty string or valid e-mail.
+    Type: String
+    AllowedPattern: ^$|[^\s@]+@[^\s@]+\.[^\s@]+
+  SNSSuccessTopicSubscriptionEmail:
+    Description: Email for Success Topic Subscription. Empty string or valid e-mail. Verbose!
+    Type: String
+    AllowedPattern: ^$|[^\s@]+@[^\s@]+\.[^\s@]+
+
+Conditions:
+  #=======================================================
+  #
+  #            Conditions
+  #
+  #=======================================================
+  SNSFailureTopicSubscriptionEmailExists:
+    Fn::Not:
+    - Fn::Equals:
+        - Ref: SNSFailureTopicSubscriptionEmail
+        - ""
+  SNSSuccessTopicSubscriptionEmailExists:
+    Fn::Not:
+      - Fn::Equals:
+        - Ref: SNSSuccessTopicSubscriptionEmail
+        - ""
 Resources:
   #=======================================================
   #
@@ -9,12 +46,34 @@ Resources:
   SNSFailureTopic:
     Type: AWS::SNS::Topic
     Properties:
-      TopicName: onboarding-failure
+      TopicName:
+        Ref: SNSFailureTopicName
+
+  SNSFailureTopicSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint:
+        Ref: SNSFailureTopicSubscriptionEmail
+      Protocol: email
+      TopicArn:
+        Ref: SNSFailureTopic
+    Condition: SNSFailureTopicSubscriptionEmailExists
 
   SNSSuccessTopic:
     Type: AWS::SNS::Topic
     Properties:
-      TopicName: onboarding-success
+      TopicName:
+        Ref: SNSSuccessTopicName
+
+  SNSSuccessTopicSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint:
+        Ref: SNSSuccessTopicSubscriptionEmail
+      Protocol: email
+      TopicArn:
+        Ref: SNSSuccessTopic
+    Condition: SNSSuccessTopicSubscriptionEmailExists
 
   SNSTopicPolicy:
     Type: AWS::SNS::TopicPolicy
@@ -83,15 +142,3 @@ Outputs:
       Fn::GetAtt:
         - SNSSuccessTopic
         - TopicArn
-  SNSFailureTopicName:
-    Description: Name for SNS where the onboarding failures will be published
-    Value:
-      Fn::GetAtt:
-        - SNSFailureTopic
-        - TopicName
-  SNSSuccessTopicName:
-    Description: Name for SNS where the onboarding success events will be published
-    Value:
-      Fn::GetAtt:
-        - SNSSuccessTopic
-        - TopicName

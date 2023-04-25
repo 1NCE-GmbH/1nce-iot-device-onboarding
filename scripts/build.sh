@@ -40,6 +40,8 @@ proxy_server_ssm_param_name=$(yq '.proxyServerSSMParamName' deploymentValues.yam
 breakout_region_ssm_param_name=$(yq '.breakoutRegionSSMParamName' deploymentValues.yaml)
 openvpn_creds_secret_name=$(yq '.openVPNCredentialsSecretName' deploymentValues.yaml)
 onboarding_api_key_name=$(yq '.onboardingApiKeyName' deploymentValues.yaml)
+sns_failure_topic_name=$(yq '.snsFailureTopicName' deploymentValues.yaml)
+sns_success_topic_name=$(yq '.snsSuccessTopicName' deploymentValues.yaml)
 nginx_port=8080
 cfn_codebase_bucket=$(myenv=$1 yq '.[env(myenv)].codeBaseBucket' deploymentValues.yaml)
 if [ -z "$cfn_codebase_bucket" ]; then
@@ -81,9 +83,10 @@ sed -i s,replace_with_ssm_param_name_to_breakout_region,"$breakout_region_ssm_pa
 sed -i s,replace_with_secret_name_to_openvpn_creds,"$openvpn_creds_secret_name",g build/ec2-user-data.bash
 sed -i s,replace_with_onboarding_api_key_name,"$onboarding_api_key_name",g build/ec2-user-data.bash
 sed -i s,replace_with_nginx_port,"$nginx_port",g build/ec2-user-data.bash
+sed -i s,replace_with_sns_success_topic_name,"$sns_success_topic_name",g build/ec2-user-data.bash
+sed -i s,replace_with_sns_failure_topic_name,"$sns_failure_topic_name",g build/ec2-user-data.bash
 
 echo "Replacing values in the device-onboarding-main.yaml template..."
-encoded_user_data=$(base64 -w0 build/ec2-user-data.bash)
 sed -i s,replace_with_version,"$version",g build/device-onboarding-main.yaml
 sed -i s,replace_with_code_bucket_name,"$cfn_codebase_bucket",g build/device-onboarding-main.yaml
 sed -i s,replace_with_code_bucket_region_name,"$cfn_codebase_bucket_region",g build/device-onboarding-main.yaml
@@ -93,7 +96,12 @@ sed -i s,replace_with_ssm_param_name_to_proxy_server,"$proxy_server_ssm_param_na
 sed -i s,replace_with_ssm_param_name_to_breakout_region,"$breakout_region_ssm_param_name",g build/device-onboarding-main.yaml
 sed -i s,replace_with_secret_name_to_openvpn_creds,"$openvpn_creds_secret_name",g build/device-onboarding-main.yaml
 sed -i s,replace_with_onboarding_api_key_name,"$onboarding_api_key_name",g build/device-onboarding-main.yaml
-sed -i s,replace_with_user_data_base_64_script,"$encoded_user_data",g build/device-onboarding-main.yaml
+sed -i s,replace_with_sns_success_topic_name,"$sns_success_topic_name",g build/device-onboarding-main.yaml
+sed -i s,replace_with_sns_failure_topic_name,"$sns_failure_topic_name",g build/device-onboarding-main.yaml
+
+echo "Replacing values in the autoscaling.yaml template..."
+encoded_user_data=$(base64 -w0 build/ec2-user-data.bash)
+sed -i s,replace_with_user_data_base_64_script,"$encoded_user_data",g build/autoscaling.yaml
 
 echo "Cleaning the clutter..."
 rm -rf build/ec2-user-data.bash

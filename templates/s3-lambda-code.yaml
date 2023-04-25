@@ -8,7 +8,6 @@ Parameters:
   #=======================================================
   S3CodeOriginBucket:
     Description: Public S3 bucket.
-    Default: open-source-device-onboarding
     Type: String
   SimRetrievalLambdaZipPath:
     Description: Zip path for the compressed folder with the sim retrieval lambda code.

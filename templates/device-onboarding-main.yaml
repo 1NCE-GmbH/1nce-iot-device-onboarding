@@ -44,6 +44,14 @@ Parameters:
       - us-east-1
       - us-west-1
     Description: Breakout region configured in the 1NCE Portal
+  SNSFailureTopicSubscriptionEmail:
+    Description: Email for Failure Topic Subscription. Empty string or valid e-mail.
+    Type: String
+    AllowedPattern: ^$|[^\s@]+@[^\s@]+\.[^\s@]+
+  SNSSuccessTopicSubscriptionEmail:
+    Description: Email for Success Topic Subscription. Empty string or valid e-mail. Verbose !
+    Type: String
+    AllowedPattern: ^$|[^\s@]+@[^\s@]+\.[^\s@]+
 Mappings:
   #=======================================================
   #
@@ -65,7 +73,8 @@ Mappings:
       ProxyServerSSMParamName: replace_with_ssm_param_name_to_proxy_server
       BreakoutRegionSSMParamName: replace_with_ssm_param_name_to_breakout_region
       OpenVPNCredentialsSecretName: replace_with_secret_name_to_openvpn_creds
-      UserDataBase64Script: replace_with_user_data_base_64_script
+      SNSFailureTopicName: replace_with_sns_failure_topic_name
+      SNSSuccessTopicName: replace_with_sns_success_topic_name
 
 Resources:
   #=======================================================
@@ -531,6 +540,21 @@ Resources:
   SNSResourcesStack:
     Type: AWS::CloudFormation::Stack
     Properties:
+      Parameters:
+        SNSSuccessTopicName:
+          Fn::FindInMap:
+            - Configuration
+            - BaseConfiguration
+            - SNSSuccessTopicName
+        SNSFailureTopicName:
+          Fn::FindInMap:
+            - Configuration
+            - BaseConfiguration
+            - SNSFailureTopicName
+        SNSFailureTopicSubscriptionEmail:
+          Ref: SNSFailureTopicSubscriptionEmail
+        SNSSuccessTopicSubscriptionEmail:
+          Ref: SNSSuccessTopicSubscriptionEmail
       TemplateURL:
         Fn::Join:
           - ""
@@ -590,11 +614,19 @@ Resources:
           Fn::GetAtt:
             - NetworkResourcesStack
             - Outputs.VPCPrivateSubnetAvailabilityZone
-        EC2UserData:
+        SnsFailureSummaryTopicARN:
+          Fn::GetAtt:
+            - SNSResourcesStack
+            - Outputs.SNSFailureTopicArn
+        SnsSuccessSummaryTopicARN:
+          Fn::GetAtt:
+            - SNSResourcesStack
+            - Outputs.SNSSuccessTopicArn
+        S3CodeOriginBucket:
           Fn::FindInMap:
             - Configuration
             - BaseConfiguration
-            - UserDataBase64Script
+            - CodebaseBucket
       TemplateURL:
         Fn::Join:
           - ""

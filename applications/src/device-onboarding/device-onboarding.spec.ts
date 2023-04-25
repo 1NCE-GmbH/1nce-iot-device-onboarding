@@ -120,6 +120,7 @@ describe("Device Onboarding", () => {
             ip: "10.0.0.1",
             active: false,
             certificate: "aa",
+            certificateId: "cert-id",
             privateKey: "PK",
           }));
         const result = await handler(sampleEvent, sampleContext);
@@ -146,6 +147,7 @@ describe("Device Onboarding", () => {
             ip: "10.0.0.1",
             active: true,
             certificate: "aa",
+            certificateId: "cert-id",
             privateKey: "PK",
           }));
         const result = await handler(sampleEvent, sampleContext);
@@ -178,6 +180,7 @@ describe("Device Onboarding", () => {
               ip: "10.0.0.1",
               active: true,
               certificate: "aa",
+              certificateId: "cert-id",
               privateKey: "PK",
             }));
           const result = await handler(sampleEvent, sampleContext);

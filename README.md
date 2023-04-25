@@ -1,3 +1,6 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+![version](https://img.shields.io/badge/version-1.0.0-blue)
+
 The Open Source project has one clear but distinctive focus - Enabling AWS customers to automatically onboard their IoT Devices into the AWS IoT Core (device-onboarding-as-a-Service) following a self-managed approach. Customers with the "1NCE Connect" product can map their IoT devices via SIM cards to certificates for the AWS IoT Core. The certificates allow publishing, subscription, and connection to AWS IoT Core MQTT broker.
 
 Certificates and other credentials for MQTT subscription can be retrieved from HTTP GET endpoint by using the SIM-as-an-Identity service. Service allows using a single endpoint for all devices. Individual certificates are returned to each device depending on the IP address, that is being used in the 1NCE network.
@@ -28,6 +31,8 @@ At least one 1NCE SIM card and access to the 1NCE.com portal. Access to an AWS a
 A user with an API role should be created. Credentials will be used to retrieve all customers' 1NCE SIM cards via [Get ALL SIMs](https://help.1nce.com/dev-hub/reference/getsimsusingget) Endpoint.
 
 ##### OpenvpnOnboardingUsername, OpenvpnOnboardingPassword
+> :warning: This project uses an OpenVPN connection and may be dropped if you use the same credentials for another purpose.
+
 [1NCE OpenVPN credentials](https://portal.1nce.com/portal/customer/configuration/credentials) can be downloaded:
 1NCE portal > Configuration > OpenVPN Configuration > Download credentials.txt
 
@@ -52,6 +57,15 @@ Example: `https://fka8ojq6lh.execute-api.us-west-1.amazonaws.com/APIGatewayStage
 Breakout region configured in the 1NCE Portal > Configuration > Breakout settings
 
 Default: eu-central-1
+
+##### SNSSuccessTopicSubscriptionEmail:
+E-mail for [SNS Success Topic](#success-topic) subscription. Accepts empty string for no subscription or valid e-mail address. If an e-mail address is provided, please try to approve the approval request immediately to not miss any events about the stack rollout process. < br/>
+> :warning: Verbose! The e-mail notifications can be a very large number. Expect at least 1 e-mail for each SIM.
+
+##### SNSFailureTopicSubscriptionEmail:
+E-mail for [SNS Failure Topic](#failure-topic) subscription. Accepts empty string for no subscription or valid e-mail address. If an e-mail address is provided, please try to approve the approval request immediately to not miss any events about the stack rollout process. < br/>
+
+
 <br /><br /><br />
 # Low-level docs
 
@@ -161,6 +175,14 @@ Lambda step-by-step flow:
    2. If SIM that exists in DB is not returned by 1NCE API, then SIM details are being sent to [SIMs disable SQS](#sims-disablefifo)
 5. If any error occurs - failure details are sent to [SNS Failure Topic](#failure-topic)
 
+Cron job:
+This lambda is triggered by a cron job defined in the CloudFormation parameters (LambdaCron), by default it will be triggered every day at 1 am to identify SIM changes
+
+Memory size:
+This lambda has 3GB of RAM memory to be prepared to fetch and compare thousands of SIMs between the API and Dynamo database.
+
+Execution time:
+Depending on your number of SIMs this lambda can take up to 15 minutes because it is fetching all SIMs from the API over the HTTPS protocol and comparing each SIM change with the database
 
 ### Create SIM lambda
 
@@ -245,7 +267,34 @@ EC2 instance flow:
 - Download the Nginx config template from the public S3 bucket. Fill Nginx config. Run the Nginx server.
 - Reboot EC2 instance.
 
+<br />
+EC2 instance will send failure message to [SNS Failure Topic](#failure-topic) in such cases:
+- Failure to get an SSM parameter
+- Failure to put an SSM parameter
+- Failure to download configuration file from S3 bucket
+- Failure to get a secret from secrets manager
+- Failure to get API keys from API Gateway
+- If openVPN service will not be able to get tun0 interface within 120s
+- If nginx service will fail to be started
 
+Example message:
+```
+{
+  "timestamp":1680526955876,
+  "message": "EC2 Nginx server failure"
+}
+```
+
+<br />
+EC2 instance will send success message to [SNS Success Topic](#success-topic) if EC2 configuration will be successfull.
+
+Example message:
+```
+{
+  "timestamp":1680526955876,
+  "message": "EC2 instance for onboarding service configured correctly"
+}
+```
 ### Connect to EC2 machine.
 
 1. AWS > EC2 > Instances
@@ -263,6 +312,11 @@ EC2 instance flow:
 `client  credentials.txt  openvpn-1nce-client.conf  server  update-resolv-conf`
 
 credentials.txt should contain the same content as 1NCE portal > Configuration > OpenVPN Configuration > Download credentials.txt
+<br />
+In order to validate if openvpn can be started manually the following command can be used:
+<br /> 
+`sudo openvpn --config /etc/openvpn/openvpn-1nce-client.conf`
+
 
 More details https://help.1nce.com/dev-hub/docs/network-services-vpn-service
 
@@ -378,6 +432,8 @@ Deployment values is a file located in the root of the repository and has the re
 - `breakoutRegionSSMParamName` is the SSM parameter name where the VPN breakout region will be placed
 - `openVPNCredentialsSecretName` is the AWS Secrets name where the OpenVPN credentials will be placed.
 - `onboardingApiKeyName` is the name of the API Key used in the Onboarding API Gateway.
+- `snsSuccessTopicName` is the SNS topic name where success messages will be published
+- `snsFailureTopicName` is the SNS topic name where failure messages will be published
 
 ### The script
 
@@ -412,6 +468,178 @@ Script input parameters:
 | 2              | version-number  | No            | Non mandatory parameter, default value will be taken from `version` value in `deploymentValues.yaml` file. All files are uploaded to folder with the name of this parameter on S3 bucket |
 | 3              | latest          | No            | Non mandatory parameter, if provided uploads `device-onboarding-main.yaml` file to the latest folder in the bucket |
 
+# HTTPS support
+If you need to add https support to your stack, follow the next steps:
+
+1. Create AWS Route53 DNS record with type `A` or `AAAA` and the value must be the EC2 server ip.     
+   - Go to Route 53 > Hosted zones and select your hosted zone
+   - Click on "Create record"
+   - Fill the `subdomain` value
+   - Fill the `ip` value with the EC2 server ip inside of the VPN. This ip value can be found in `Systems Manager > Parameter Store > openvpn-onboarding-proxy-server`
+
+2. Create IAM user and policy to access Route 53. 
+    > :warning: **If Route 53 is hosted by another AWS account**: User and policy must be created there
+
+    1. Create IAM policy 
+        - Go to AWS IAM > Policies
+        - Click on "Create Policy"
+        - Select `JSON` tab
+        - Copy and paste this document policy and replace the `REPLACE_WITH_HOSTED_ZONE_ID` with hosted zone id from Reoute 53
+          ```
+          {
+              "Version": "2012-10-17",
+              "Statement": [
+                  {
+                      "Effect": "Allow",
+                      "Action": [
+                          "route53:ListHostedZones",
+                          "route53:GetChange"
+                      ],
+                      "Resource": [
+                          "*"
+                      ]
+                  },
+                  {
+                      "Effect" : "Allow",
+                      "Action" : [
+                          "route53:ChangeResourceRecordSets"
+                      ],
+                      "Resource" : [
+                          "arn:aws:route53:::hostedzone/REPLACE_WITH_HOSTED_ZONE_ID"
+                      ]
+                  }
+              ]
+          }
+          ```
+        - Click on "Next: Tags"
+        - Click on "Next: Review"
+        - Fill the policy name
+        - Click on "Create policy"
+
+    2. Create IAM user and attach created policy    
+        - Go to AWS IAM > Users
+        - Click on "Add Users"
+        - Fill the username field and click on "Next"
+        - Select "Attach policies directly" 
+        - Search and select the created policy
+        - Click on "Next"
+        - Click on "Create user"
+
+    3. Generate access keys
+        - Open create IAM user
+        - Go to "Security credentials" tab
+        - Click on "Create access key"
+        - Select "Command Line Interface (CLI)"
+        - Click on "Next" and "Create access key"
+        - Save the access key and secret access key
+        - Click on "Done"
+
+3. Connect to the EC2 instance and install [certbot](https://certbot.eff.org/) and [certbot-dns-route53](https://certbot-dns-route53.readthedocs.io/en/stable/)
+    ```
+    sudo snap install core
+    sudo snap refresh core
+    sudo snap install --classic certbot
+    sudo ln -s /snap/bin/certbot /usr/bin/certbot
+    sudo snap set certbot trust-plugin-with-root=ok
+    sudo snap install certbot-dns-route53
+    ```
+
+4. Add these lines at the end of the nginx configuration file to listen on port 80 and this server will be used to generate the ssl certificate.
+   Nginx configuration file location: `/etc/nginx/sites-available/default`:
+    ```
+    server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+        root /var/www/html;
+        server_name _;
+    }
+    ```
+
+5. Restart ngnix server
+    ```
+    sudo systemctl restart nginx
+    ```
+
+6. Generate [Let's Encrypt](https://letsencrypt.org/) ssl certificate
+
+    1. Set AWS credentials
+        - Create AWS config file
+            ```
+            cd ~
+            mkdir .aws
+            sudo nano .aws/config
+            ```
+
+        - Fill in and save this file with the IAM user information created in section 2
+            ```
+            [default]
+            aws_access_key_id=REPLACE_WITH_AWS_ACCESS_KEY
+            aws_secret_access_key=REPLACE_WITH_AWS_SECRET_ACCESS_KEY
+            ```
+
+    2. Generate [Let's Encrypt](https://letsencrypt.org/) ssl certificate.
+       Values to be replaced:
+        - REPLACE_WITH_DOMAIN: Domain used to generate the SSL certificate (example: domain.com)
+        - REPLACE_WITH_EMAIL: Email to subscribe [Let's Encrypt expiry notifications](https://letsencrypt.org/docs/expiration-emails/)
+
+        ```
+        cd ~
+        certbot certonly --dns-route53 -d REPLACE_WITH_DOMAIN --logs-dir ~/letsencrypt/log/ --config-dir ~/letsencrypt/config/ --work-dir ~/letsencrypt/work/ -m REPLACE_WITH_EMAIL --agree-tos --non-interactive --post-hook "sudo systemctl restart nginx"
+        ```
+
+7. Update nginx configuration (`/etc/nginx/sites-available/default`) to add ssl certificate
+    1. Update the listen port to 443 (default https port) and add the `ssl` tag to the server listen ports.
+        Note: If you want, you can set another https listen port    
+        ```
+        listen 443 default_server ssl;
+        listen [::]:443 default_server ssl;
+        ```
+    
+    2. Add certificate and key to the NGINX configuration inside of the `server` object at the same level as `root` and `server_name`.
+        ```
+        ssl_certificate /home/ssm-user/letsencrypt/config/live/REPLACE_WITH_DOMAIN/fullchain.pem;
+        ssl_certificate_key /home/ssm-user/letsencrypt/config/live/REPLACE_WITH_DOMAIN/privkey.pem;
+        ```
+
+    3. After updating the nginx configuration file should look like this:
+        ```
+        server {
+            listen 443 default_server ssl;
+            listen [::]:443 default_server ssl;
+
+            root /var/www/html;
+
+            ssl_certificate /home/ssm-user/letsencrypt/config/live/REPLACE_WITH_DOMAIN/fullchain.pem;
+            ssl_certificate_key /home/ssm-user/letsencrypt/config/live/REPLACE_WITH_DOMAIN/privkey.pem;
+
+            server_name _;
+            location / {
+                    proxy_pass                  REPLACE_WITH_API_GATEWAY_URL;
+                    proxy_set_header            onboarding-ip $proxy_add_x_forwarded_for;
+                    proxy_set_header            x-api-key REPLACE_WITH_API_KEY;
+                    proxy_ssl_server_name       on;
+            }
+        }
+
+        server {
+            listen 80 default_server;
+            listen [::]:80 default_server;
+            root /var/www/html;
+            server_name _;
+        }
+        ```
+
+8) Restart ngnix server
+    ```
+    sudo systemctl restart nginx
+    ```
+
+9) Test automatic renewal
+    ```
+    cd ~
+    certbot renew --dns-route53 --logs-dir ~/letsencrypt/log/ --config-dir ~/letsencrypt/config/ --work-dir ~/letsencrypt/work/ --non-interactive --post-hook "sudo systemctl restart nginx" --dry-run
+    ```
+
 # Delete and cleanup process
 
 If the stack is being deleted, then the majority of resources will be deleted by the CFN stack. Some of the resources still need to be cleaned/deleted manually:
@@ -420,10 +648,18 @@ If the stack is being deleted, then the majority of resources will be deleted by
 - IoT Core Certs
 - IoT Core Policy
 
+if HTTPS support has been implemented:
+- IAM policy
+- IAM user
+- Route 53 `A` or `AAAA` record
+
 # FAQ
 
 Q: My SIMs were migrated to a different 1NCE organization and stopped working.<br />
 A: If SIMs were migrated to a different 1NCE organization, this means that SIM will not be returned via [Get ALL SIMs](https://help.1nce.com/dev-hub/reference/getsimsusingget) Endpoint. Therefore [SIM retrieval lambda](#sim-retrieval-lambda) will send an SQS message to disable the SIM. SIM is being disabled by setting the certificate in DynamoDB as `a: false`. When onboarding will be called for such SIM card a message `{"message":"Device with the IP=1.2.3.4 is not active"}$` with 404 status code will be returned.
+
+Q: My HTTPS setup was done with success but it stopped to work.
+A: It's a manual process and if the EC2 server shuts down for any reason, autoscaling will replace the old instance with a new one. Once this new instance is live, the HTTPS process must be repeated.
 
 # Asking for help
 
