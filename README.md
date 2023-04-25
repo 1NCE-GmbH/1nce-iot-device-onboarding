@@ -1,3 +1,6 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+![version](https://img.shields.io/badge/version-1.0.0-blue)
+
 The Open Source project has one clear but distinctive focus - Enabling AWS customers to automatically onboard their IoT Devices into the AWS IoT Core (device-onboarding-as-a-Service) following a self-managed approach. Customers with the "1NCE Connect" product can map their IoT devices via SIM cards to certificates for the AWS IoT Core. The certificates allow publishing, subscription, and connection to AWS IoT Core MQTT broker.
 
 Certificates and other credentials for MQTT subscription can be retrieved from HTTP GET endpoint by using the SIM-as-an-Identity service. Service allows using a single endpoint for all devices. Individual certificates are returned to each device depending on the IP address, that is being used in the 1NCE network.
