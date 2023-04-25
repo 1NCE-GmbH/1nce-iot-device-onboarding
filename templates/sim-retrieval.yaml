@@ -197,7 +197,7 @@ Resources:
           Ref: S3LocalBucketName
         S3Key:
           Ref: SimRetrievalLambdaZipPath
-      MemorySize: 128
+      MemorySize: 3072
       Role:
         Fn::GetAtt:
           - LambdaSimRetrievalIAMRole

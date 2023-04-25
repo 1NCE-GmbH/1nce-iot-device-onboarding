@@ -11,6 +11,7 @@ export class SIM {
   updatedTime: Date;
   active: boolean;
   certificate: string;
+  certificateId: string;
   privateKey: string;
 
   constructor(sim: ISim) {
@@ -20,6 +21,7 @@ export class SIM {
     this.updatedTime = sim.updatedTime ? new Date(sim.updatedTime) : new Date();
     this.active = sim.active;
     this.certificate = sim.certificate;
+    this.certificateId = sim.certificateId;
     this.privateKey = sim.privateKey;
   }
 
@@ -40,6 +42,7 @@ export class SIM {
       PK: `IP#${this.ip}`,
       SK: "P#MQTT",
       crt: this.certificate,
+      crtid: this.certificateId,
       prk: this.privateKey,
       ct: this.createdTime.toISOString(),
       ut: this.updatedTime.toISOString(),
@@ -69,6 +72,7 @@ export function fromItem(item: IDynamoSim): SIM {
     updatedTime: item.ut,
     active: item.a,
     certificate: item.crt,
+    certificateId: item.crtid,
     privateKey: item.prk,
   });
 }
@@ -80,6 +84,7 @@ export interface ISim {
   updatedTime?: string;
   active: boolean;
   certificate: string;
+  certificateId: string;
   privateKey: string;
 }
 
@@ -111,6 +116,8 @@ export interface SimPerPageResults {
 export interface IDynamoSim extends IDynamoItem {
   // certificate
   crt: string;
+  // certificate id
+  crtid: string;
   // private key
   prk: string;
   // active

@@ -72,6 +72,7 @@ async function getSimsPerPage(authToken: string, page: number, pageSize: number)
         ip: simData.ip_address,
         active: true,
         certificate: "",
+        certificateId: "",
         privateKey: "",
       })),
       totalPages: parseInt(response.headers["x-total-pages"]),

@@ -39,6 +39,7 @@ async function handleSQSRecord(record: SQSRecord): Promise<void> {
       ip: body.ip,
       active: true,
       certificate: iotCoreCertificate.certificate,
+      certificateId: iotCoreCertificate.id,
       privateKey: iotCoreCertificate.privateKey,
     });
 

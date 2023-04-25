@@ -63,6 +63,7 @@ describe("SIM Retrieval", () => {
             ip: "10.0.0.1",
             active: true,
             certificate: "certificate",
+            certificateId: "cert-id",
             privateKey: "private_key",
           }),
         ]);
@@ -87,6 +88,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.1",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
           ]);
@@ -96,6 +98,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.1",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
           ]);
@@ -119,6 +122,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.1",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
             new SIM({
@@ -126,6 +130,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.2",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
           ]);
@@ -135,6 +140,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.1",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
           ]);
@@ -148,6 +154,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.2",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }).buildSqsMessageEntry(),
           ]);
@@ -167,6 +174,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.1",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
             new SIM({
@@ -174,6 +182,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.2",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
           ]);
@@ -183,6 +192,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.1",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
             new SIM({
@@ -190,6 +200,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.2",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
             new SIM({
@@ -197,6 +208,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.3",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
           ]);
@@ -210,6 +222,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.3",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }).buildSqsMessageEntry(),
           ]);
@@ -229,6 +242,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.1",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
             new SIM({
@@ -236,6 +250,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.2",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
           ]);
@@ -245,6 +260,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.1",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
             new SIM({
@@ -252,6 +268,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.2",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
             new SIM({
@@ -259,6 +276,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.3",
               active: false,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
           ]);
@@ -282,6 +300,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.1",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
             new SIM({
@@ -289,6 +308,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.2",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
           ]);
@@ -298,6 +318,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.1",
               active: false,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
             new SIM({
@@ -305,6 +326,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.2",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
           ]);
@@ -318,6 +340,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.1",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }).buildSqsMessageEntry(),
           ]);
@@ -337,6 +360,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.1",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
             new SIM({
@@ -344,6 +368,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.2",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
             new SIM({
@@ -351,6 +376,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.4",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
           ]);
@@ -360,6 +386,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.1",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
             new SIM({
@@ -367,6 +394,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.2",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
             new SIM({
@@ -374,6 +402,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.3",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
           ]);
@@ -387,6 +416,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.4",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }).buildSqsMessageEntry(),
           ]);
@@ -396,6 +426,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.3",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }).buildSqsMessageEntry(),
           ]);
@@ -415,6 +446,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.1",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }),
           ]);
@@ -431,6 +463,7 @@ describe("SIM Retrieval", () => {
               ip: "10.0.0.1",
               active: true,
               certificate: "certificate",
+              certificateId: "cert-id",
               privateKey: "private_key",
             }).buildSqsMessageEntry(),
           ]);

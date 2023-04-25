@@ -45,6 +45,7 @@ describe("Disable SIM", () => {
     updatedTime: mockDate.toISOString(),
     active: false,
     certificate: "pem",
+    certificateId: "cert-id",
     privateKey: "private-key",
   });
 
@@ -117,6 +118,7 @@ describe("Disable SIM", () => {
         iccid: "123456789",
         ip: "10.0.0.0",
         certificate: "pem",
+        certificateId: "cert-id",
         privateKey: "private-key",
         active: false,
         createdTime: mockDate,

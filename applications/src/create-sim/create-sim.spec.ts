@@ -54,7 +54,7 @@ describe("Create SIM", () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
-    iotCertificate = new IoTCoreCertificate({ id: "id", arn: "arn", pem: "pem", privateKey: "private-key" });
+    iotCertificate = new IoTCoreCertificate({ id: "cert-id", arn: "arn", pem: "pem", privateKey: "private-key" });
     iotThing = new IoTCoreThing({ name: "123456789" });
   });
 
@@ -62,6 +62,7 @@ describe("Create SIM", () => {
     PK: "IP#10.0.0.0",
     SK: "P#MQTT",
     crt: "pem",
+    crtid: "cert-id",
     ct: mockDate.toISOString(),
     ut: mockDate.toISOString(),
     i: "123456789",
@@ -132,6 +133,7 @@ describe("Create SIM", () => {
         iccid: "123456789",
         ip: "10.0.0.0",
         certificate: "pem",
+        certificateId: "cert-id",
         privateKey: "private-key",
         active: true,
         createdTime: mockDate,
@@ -142,6 +144,7 @@ describe("Create SIM", () => {
         iccid: "123456789",
         ip: "10.0.0.0",
         certificate: "pem",
+        certificateId: "cert-id",
         privateKey: "private-key",
         active: true,
         createdTime: mockDate,
@@ -170,6 +173,7 @@ describe("Create SIM", () => {
         iccid: "123456789",
         ip: "10.0.0.0",
         certificate: "pem",
+        certificateId: "cert-id",
         privateKey: "private-key",
         active: true,
         createdTime: mockDate,
@@ -181,6 +185,7 @@ describe("Create SIM", () => {
         iccid: "123456789",
         ip: "10.0.0.0",
         certificate: "pem",
+        certificateId: "cert-id",
         privateKey: "private-key",
         active: true,
         createdTime: mockDate,
@@ -213,6 +218,7 @@ describe("Create SIM", () => {
         iccid: "123456789",
         ip: "10.0.0.0",
         certificate: "pem",
+        certificateId: "cert-id",
         privateKey: "private-key",
         active: true,
         createdTime: mockDate,
@@ -225,6 +231,7 @@ describe("Create SIM", () => {
         iccid: "123456789",
         ip: "10.0.0.0",
         certificate: "pem",
+        certificateId: "cert-id",
         privateKey: "private-key",
         active: true,
         createdTime: mockDate,
@@ -259,6 +266,7 @@ describe("Create SIM", () => {
         iccid: "123456789",
         ip: "10.0.0.0",
         certificate: "pem",
+        certificateId: "cert-id",
         privateKey: "private-key",
         active: true,
         createdTime: mockDate,
@@ -271,6 +279,7 @@ describe("Create SIM", () => {
         iccid: "123456789",
         ip: "10.0.0.0",
         certificate: "pem",
+        certificateId: "cert-id",
         privateKey: "private-key",
         active: true,
         createdTime: mockDate,
@@ -303,6 +312,7 @@ describe("Create SIM", () => {
         iccid: "123456789",
         ip: "10.0.0.0",
         certificate: "pem",
+        certificateId: "cert-id",
         privateKey: "private-key",
         active: true,
         createdTime: mockDate,
@@ -312,6 +322,7 @@ describe("Create SIM", () => {
         iccid: "123456789",
         ip: "10.0.0.0",
         certificate: "pem",
+        certificateId: "cert-id",
         privateKey: "private-key",
         active: true,
         createdTime: mockDate,
@@ -325,6 +336,7 @@ describe("Create SIM", () => {
         iccid: "123456789",
         ip: "10.0.0.0",
         certificate: "pem",
+        certificateId: "cert-id",
         privateKey: "private-key",
         active: true,
         createdTime: mockDate,
@@ -337,6 +349,7 @@ describe("Create SIM", () => {
 function mockCertificateInstance(): void {
   const mockIoTCoreCertInstance = mockIoTCoreCert.mock.instances[0];
   mockIoTCoreCertInstance.attachPolicy = mockIoTCoreCertAttachPolicy;
+  mockIoTCoreCertInstance.id = "cert-id";
   mockIoTCoreCertInstance.arn = "arn";
   mockIoTCoreCertInstance.certificate = "pem";
   mockIoTCoreCertInstance.privateKey = "private-key";

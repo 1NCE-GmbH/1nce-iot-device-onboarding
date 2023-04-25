@@ -144,11 +144,11 @@ describe("Management API Service", () => {
         const result = await getAllSims("JWT_TOKEN");
 
         expect(result).toStrictEqual([
-          new SIM({ iccid: "1111111111", ip: "10.0.0.1", active: true, certificate: "", privateKey: "" }),
-          new SIM({ iccid: "2222222222", ip: "10.0.0.2", active: true, certificate: "", privateKey: "" }),
-          new SIM({ iccid: "3333333333", ip: "10.0.0.3", active: true, certificate: "", privateKey: "" }),
-          new SIM({ iccid: "4444444444", ip: "10.0.0.4", active: true, certificate: "", privateKey: "" }),
-          new SIM({ iccid: "5555555555", ip: "10.0.0.5", active: true, certificate: "", privateKey: "" }),
+          new SIM({ iccid: "1111111111", ip: "10.0.0.1", active: true, certificate: "", certificateId: "", privateKey: "" }),
+          new SIM({ iccid: "2222222222", ip: "10.0.0.2", active: true, certificate: "", certificateId: "", privateKey: "" }),
+          new SIM({ iccid: "3333333333", ip: "10.0.0.3", active: true, certificate: "", certificateId: "", privateKey: "" }),
+          new SIM({ iccid: "4444444444", ip: "10.0.0.4", active: true, certificate: "", certificateId: "", privateKey: "" }),
+          new SIM({ iccid: "5555555555", ip: "10.0.0.5", active: true, certificate: "", certificateId: "", privateKey: "" }),
         ]);
         expect(mockGetAxios).toHaveBeenCalledTimes(2);
         expect(console.log).toHaveBeenNthCalledWith(1, "Retrieving SIMs. Page: 1");

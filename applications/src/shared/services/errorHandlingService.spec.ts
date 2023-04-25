@@ -93,6 +93,7 @@ describe("Error service", () => {
           iccid: "123456789",
           active: true,
           certificate: "pem",
+          certificateId: "cert-id",
           privateKey: "private-key",
         }));
 

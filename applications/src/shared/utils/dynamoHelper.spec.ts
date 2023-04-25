@@ -1,7 +1,7 @@
 import { DynamoDB, ScanCommand, PutItemCommand, GetItemCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import { mockClient } from "aws-sdk-client-mock";
-import { query, putItem, getItem, updateItem } from "../utils/dynamoHelper";
+import { scan, putItem, getItem, updateItem } from "../utils/dynamoHelper";
 
 console.log = jest.fn();
 
@@ -13,23 +13,24 @@ describe("dynamoHelper", () => {
     jest.resetAllMocks();
   });
 
-  describe("query", () => {
-    it("should query and return items", async () => {
+  describe("scan", () => {
+    it("should scan and return items with pagination", async () => {
       const params = {
         TableName: "test",
         Key: {
           PK: "PK",
         },
+        Limit: 1,
       };
 
       DynamoDbClientMock.on(
         ScanCommand,
         params,
-      ).resolves({ Items: [{ test: 1 } as any] });
+      ).resolves({ Items: [{ test: 1, item: 2 } as any] });
 
-      const res = await query(params);
-      expect(res).toStrictEqual([{ test: 1 }]);
-      expect(console.log).toHaveBeenCalledWith("Querying dynamo items", params);
+      const res = await scan(params);
+      expect(res).toStrictEqual([{ test: 1, item: 2 }]);
+      expect(console.log).toHaveBeenCalledWith("Scanning dynamo items", params);
     });
   });
 

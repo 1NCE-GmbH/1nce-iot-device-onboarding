@@ -12,6 +12,7 @@ describe("SIM", () => {
     updatedTime: mockDate.toISOString(),
     active: true,
     certificate: "pem",
+    certificateId: "cert-id",
     privateKey: "private-key",
   });
 
@@ -19,6 +20,7 @@ describe("SIM", () => {
     PK: "IP#10.0.0.0",
     SK: "P#MQTT",
     crt: "pem",
+    crtid: "cert-id",
     ct: "2023-02-01T00:00:00.000Z",
     ut: "2023-02-01T00:00:00.000Z",
     i: "123456789",
@@ -48,6 +50,7 @@ describe("SIM", () => {
         ip: "10.0.0.0",
         active: true,
         certificate: "certificate",
+        certificateId: "cert-id",
         privateKey: "private_key",
       });
 
@@ -65,6 +68,7 @@ describe("SIM", () => {
         ip: "10.0.0.0",
         active: true,
         certificate: "certificate",
+        certificateId: "cert-id",
         privateKey: "private_key",
       });
 
@@ -100,6 +104,7 @@ describe("SIM", () => {
         SK: "P#MQTT",
         a: true,
         crt: "pem",
+        crtid: "cert-id",
         ct: mockDate.toISOString(),
         ut: mockDate.toISOString(),
         i: "123456789",

@@ -5,6 +5,8 @@ proxyServerSSMParamName: openvpn-onboarding-proxy-server
 breakoutRegionSSMParamName: breakout-region
 openVPNCredentialsSecretName: open-source-device-onboarding-openvpn-credentials
 onboardingApiKeyName: device-onboarding-key
+snsSuccessTopicName: onboarding-success
+snsFailureTopicName: onboarding-failure
 
 dev:
   codeBaseBucket: device-onboarding-dev-cloudformation-templates

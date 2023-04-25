@@ -44,6 +44,7 @@ describe("Success Message Service", () => {
           ip: "10.0.0.0",
           active: true,
           certificate: "pem",
+          certificateId: "cert-id",
           privateKey: "private-key",
         }), "enabled");
 
@@ -68,6 +69,7 @@ describe("Success Message Service", () => {
           ip: "10.0.0.0",
           active: true,
           certificate: "pem",
+          certificateId: "cert-id",
           privateKey: "private-key",
         }), "enabled");
 
@@ -95,6 +97,7 @@ describe("Success Message Service", () => {
           ip: "10.0.0.0",
           active: true,
           certificate: "pem",
+          certificateId: "cert-id",
           privateKey: "private-key",
         }), "enabled");
 
@@ -119,6 +122,7 @@ describe("Success Message Service", () => {
           ip: "10.0.0.0",
           active: true,
           certificate: "pem",
+          certificateId: "cert-id",
           privateKey: "private-key",
         }), "enabled");
 

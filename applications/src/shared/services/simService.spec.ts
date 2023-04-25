@@ -5,14 +5,14 @@ import { marshall } from "@aws-sdk/util-dynamodb";
 import { mocked } from "jest-mock";
 import { NotFoundError } from "../types/error";
 import { SIM } from "../types/sim";
-import { getItem, query, updateItem } from "../utils/dynamoHelper";
+import { getItem, scan, updateItem } from "../utils/dynamoHelper";
 import { disableSim, getDbSimByIp, getDbSims } from "./simService";
 
 jest.mock("../utils/dynamoHelper");
 jest.mock("../utils/awsIotCoreHelper");
 jest.mock("../utils/snsHelper");
 
-const mockQuery = mocked(query);
+const mockScan = mocked(scan);
 const mockGetItem = mocked(getItem);
 const mockUpdateItem = mocked(updateItem);
 console.error = jest.fn();
@@ -36,7 +36,7 @@ describe("SIM Service", () => {
 
   describe("getDbSims", () => {
     it("should return SIM instances array", async () => {
-      mockQuery.mockResolvedValueOnce([
+      mockScan.mockResolvedValueOnce([
         {
           PK: { S: "" },
           SK: { S: "" },
@@ -46,6 +46,7 @@ describe("SIM Service", () => {
           ut: { S: "2023-02-01T00:00:00.000Z" },
           a: { BOOL: true },
           crt: { S: "certificate" },
+          crtid: { S: "cert-id" },
           prk: { S: "private_key" },
         },
         {
@@ -57,6 +58,7 @@ describe("SIM Service", () => {
           ut: { S: "2023-02-01T00:00:00.000Z" },
           a: { BOOL: true },
           crt: { S: "certificate" },
+          crtid: { S: "cert-id" },
           prk: { S: "private_key" },
         },
       ]);
@@ -71,6 +73,7 @@ describe("SIM Service", () => {
           updatedTime: "2023-02-01T00:00:00.000Z",
           active: true,
           certificate: "certificate",
+          certificateId: "cert-id",
           privateKey: "private_key",
         }),
         new SIM({
@@ -80,14 +83,15 @@ describe("SIM Service", () => {
           updatedTime: "2023-02-01T00:00:00.000Z",
           active: true,
           certificate: "certificate",
+          certificateId: "cert-id",
           privateKey: "private_key",
         }),
       ]);
-      expect(mockQuery).toHaveBeenCalledWith({ TableName: "SIMS_TABLE" });
+      expect(mockScan).toHaveBeenCalledWith({ TableName: "SIMS_TABLE" });
     });
 
     it("should return empty array when query result is null", async () => {
-      mockQuery.mockResolvedValueOnce(undefined);
+      mockScan.mockResolvedValueOnce(undefined);
 
       const result = await getDbSims();
 
@@ -95,7 +99,7 @@ describe("SIM Service", () => {
     });
 
     it("should throw error when the database query fails", async () => {
-      mockQuery.mockRejectedValueOnce("Database error");
+      mockScan.mockRejectedValueOnce("Database error");
 
       try {
         await getDbSims();
@@ -119,6 +123,7 @@ describe("SIM Service", () => {
         ut: { S: "2023-02-01T00:00:00.000Z" },
         a: { B: true },
         crt: { S: "certificate" },
+        crtid: { S: "cert-id" },
         prk: { S: "private_key" },
       });
 
@@ -132,6 +137,7 @@ describe("SIM Service", () => {
         updatedTime: "2023-02-01T00:00:00.000Z",
         active: true,
         certificate: "certificate",
+        certificateId: "cert-id",
         privateKey: "private_key",
       }),
     );
@@ -264,6 +270,7 @@ describe("SIM Service", () => {
             PK: "IP#10.0.0.0",
             SK: "P#MQTT",
             crt: "pem",
+            crtid: "cert-id",
             ct: mockDate.toISOString(),
             ut: mockDate.toISOString(),
             i: "123456789",
@@ -278,6 +285,7 @@ describe("SIM Service", () => {
         expect(sim).toStrictEqual(new SIM({
           active: false,
           certificate: "pem",
+          certificateId: "cert-id",
           privateKey: "private-key",
           iccid: "123456789",
           ip: "10.0.0.0",
