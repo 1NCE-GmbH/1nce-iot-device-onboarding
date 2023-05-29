@@ -184,6 +184,9 @@ This lambda has 3GB of RAM memory to be prepared to fetch and compare thousands 
 Execution time:
 Depending on your number of SIMs this lambda can take up to 15 minutes because it is fetching all SIMs from the API over the HTTPS protocol and comparing each SIM change with the database
 
+> :warning: **SIM Retrieval Lambda - Load test:**
+> Due to the possible high number of devices, this lambda was tested with 15,000 SIM cards and it took about 1 hour to process the creation of all devices. This delay is happening because each new SIM is generating an SQS message and [Create SIM lambda](#create-sim-lambda) takes a while to complete the creation process because it is processing one record per each execution.
+
 ### Create SIM lambda
 
 Lambda step-by-step flow:
