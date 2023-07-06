@@ -43,6 +43,7 @@ Parameters:
       - eu-central-1
       - us-east-1
       - us-west-1
+      - ap-northeast-1
     Description: Breakout region configured in the 1NCE Portal
   SNSFailureTopicSubscriptionEmail:
     Description: Email for Failure Topic Subscription. Empty string or valid e-mail.
