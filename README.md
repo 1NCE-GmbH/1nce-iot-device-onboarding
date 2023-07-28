@@ -1,5 +1,5 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-![version](https://img.shields.io/badge/version-1.0.0-blue)
+![version](https://img.shields.io/badge/version-1.0.1-blue)
 
 The Open Source project has one clear but distinctive focus - Enabling AWS customers to automatically onboard their IoT Devices into the AWS IoT Core (device-onboarding-as-a-Service) following a self-managed approach. Customers with the "1NCE Connect" product can map their IoT devices via SIM cards to certificates for the AWS IoT Core. The certificates allow publishing, subscription, and connection to AWS IoT Core MQTT broker.
 
@@ -461,7 +461,7 @@ Prerequisites before running the script:
 Script must be executed with sudo permissions, because it is installing yq which is needed for yaml parameter file reading.
 Following command can be used:
 ```sh
-sudo ./scripts/publish.sh dev V1.0.0 latest
+sudo ./scripts/publish.sh dev V1.0.1 latest
 ```
 Script input parameters:
 
