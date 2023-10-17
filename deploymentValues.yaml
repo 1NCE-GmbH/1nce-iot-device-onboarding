@@ -1,4 +1,4 @@
-version: V1.0.1
+version: V1.0.2
 apiGatewayUrlSSMParamName: openvpn-onboarding-api-gateway-url
 onboardingPathSSMParamName: openvpn-onboarding-path
 proxyServerSSMParamName: openvpn-onboarding-proxy-server
