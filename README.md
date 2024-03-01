@@ -1,5 +1,5 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-![version](https://img.shields.io/badge/version-1.0.2-blue)
+![version](https://img.shields.io/badge/version-2.0.0-blue)
 
 The Open Source project has one clear but distinctive focus - Enabling AWS customers to automatically onboard their IoT Devices into the AWS IoT Core (device-onboarding-as-a-Service) following a self-managed approach. Customers with the "1NCE Connect" product can map their IoT devices via SIM cards to certificates for the AWS IoT Core. The certificates allow publishing, subscription, and connection to AWS IoT Core MQTT broker.
 
@@ -59,11 +59,11 @@ Breakout region configured in the 1NCE Portal > Configuration > Breakout setting
 Default: eu-central-1
 
 ##### SNSSuccessTopicSubscriptionEmail:
-E-mail for [SNS Success Topic](#success-topic) subscription. Accepts empty string for no subscription or valid e-mail address. If an e-mail address is provided, please try to approve the approval request immediately to not miss any events about the stack rollout process. < br/>
+E-mail for [SNS Success Topic](#success-topic) subscription. Accepts empty string for no subscription or valid e-mail address. If an e-mail address is provided, please try to approve the approval request immediately to not miss any events about the stack rollout process.<br />
 > :warning: Verbose! The e-mail notifications can be a very large number. Expect at least 1 e-mail for each SIM.
 
 ##### SNSFailureTopicSubscriptionEmail:
-E-mail for [SNS Failure Topic](#failure-topic) subscription. Accepts empty string for no subscription or valid e-mail address. If an e-mail address is provided, please try to approve the approval request immediately to not miss any events about the stack rollout process. < br/>
+E-mail for [SNS Failure Topic](#failure-topic) subscription. Accepts empty string for no subscription or valid e-mail address. If an e-mail address is provided, please try to approve the approval request immediately to not miss any events about the stack rollout process.<br />
 
 
 <br /><br /><br />
@@ -418,7 +418,7 @@ Custom Lambda and resources to invoke [SIM Retrieval Lambda](#sim-retrieval-lamb
 
 In order to be able to deploy the templates to your S3 Bucket and then use it in the Cloud Formation, it is necessary to build the files beforehand.<br>For that purpose, there is a script developed for Linux systems that will do the job. The script has the following requirements:
 - Admin rights, to be able to install dependencies
-- Node 14 or newer
+- Node 18 or newer
 - Deployment values file properly filled (deploymentValues.yaml)
 
 The `build.sh` script is located under the `scripts` folder and it can receive two arguments. The first refers to the environment in which the files will be deployed. The second argument is used to pass a version different from the one described in the `deploymentValues.yaml`. That is useful when deploying temporary testable versions.
@@ -661,7 +661,7 @@ if HTTPS support has been implemented:
 Q: My SIMs were migrated to a different 1NCE organization and stopped working.<br />
 A: If SIMs were migrated to a different 1NCE organization, this means that SIM will not be returned via [Get ALL SIMs](https://help.1nce.com/dev-hub/reference/getsimsusingget) Endpoint. Therefore [SIM retrieval lambda](#sim-retrieval-lambda) will send an SQS message to disable the SIM. SIM is being disabled by setting the certificate in DynamoDB as `a: false`. When onboarding will be called for such SIM card a message `{"message":"Device with the IP=1.2.3.4 is not active"}$` with 404 status code will be returned.
 
-Q: My HTTPS setup was done with success but it stopped to work.
+Q: My HTTPS setup was done with success but it stopped to work.<br />
 A: It's a manual process and if the EC2 server shuts down for any reason, autoscaling will replace the old instance with a new one. Once this new instance is live, the HTTPS process must be repeated.
 
 # Asking for help

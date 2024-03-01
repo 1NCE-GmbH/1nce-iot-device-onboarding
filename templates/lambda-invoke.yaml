@@ -36,7 +36,7 @@ Resources:
   LambdaInvoke:
     Type: AWS::Lambda::Function
     Properties:
-      Runtime: nodejs14.x
+      Runtime: nodejs18.x
       Role:
         Fn::GetAtt:
           - LambdaInvokeIAMRole
@@ -44,7 +44,7 @@ Resources:
       Handler: index.handler
       Code:
         ZipFile: |
-          const aws = require('aws-sdk');
+          const { LambdaClient, InvokeCommand } = require('@aws-sdk/client-lambda');
           const response = require('cfn-response');
           exports.handler = function (event, context) {
               console.log("REQUEST RECEIVED:\n" + JSON.stringify(event));
@@ -56,8 +56,8 @@ Resources:
               let responseStatus = "FAILED";
               let responseData = {};
               let functionName = event.ResourceProperties.FunctionName;
-              let lambda = new aws.Lambda();
-              lambda.invoke({ FunctionName: functionName, InvocationType: "Event" }, function (err) {
+              let lambda = new LambdaClient();
+              lambda.send(new InvokeCommand({ FunctionName: functionName, InvocationType: "Event" }), function (err) {
                   if (err) {
                       responseData = { Error: "Invoke call failed" };
                       console.log(responseData.Error + ":\n", err);
