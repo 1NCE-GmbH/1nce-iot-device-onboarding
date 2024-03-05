@@ -38,7 +38,7 @@ Resources:
     Properties:
       FunctionName: IotEndpointUrlProvider
       Handler: index.handler
-      Runtime: nodejs14.x
+      Runtime: nodejs18.x
       MemorySize: 128
       Timeout: 15
       Role:
@@ -49,15 +49,15 @@ Resources:
         Mode: Active
       Code:
         ZipFile: |
-          var aws = require("aws-sdk");
+          const { IoTClient, DescribeEndpointCommand } = require("@aws-sdk/client-iot");
           exports.handler = function(event, context) {
               console.log("REQUEST RECEIVED:\n" + JSON.stringify(event));
               if (event.RequestType == "Delete") {
                   sendResponse(event, context, "SUCCESS");
                   return;
               }
-              const iot = new aws.Iot();
-              iot.describeEndpoint({endpointType: "iot:Data-ATS"}, (err, data) => {
+              const iot = new IoTClient();
+              iot.send(new DescribeEndpointCommand({endpointType: "iot:Data-ATS"}), (err, data) => {
               let responseData, responseStatus;
                   if (err) {
                       responseStatus = "FAILED";

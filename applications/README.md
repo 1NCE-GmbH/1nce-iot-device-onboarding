@@ -47,12 +47,12 @@ src/<lambda-name>/<lambda-name>.ts
 ## How to build the service
 1) Build Typescript code
 ```
-npm run build
+npm run bundle
 ```
 
 2) Compress generated Javascript code
 ```
-npm run zip
+npm run zip:all
 ```
 
 3) Inside the `dist` folder you will find the `sim-retrieval.zip` file ready to upload to AWS Lambda

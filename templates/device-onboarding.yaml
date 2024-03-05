@@ -103,7 +103,7 @@ Resources:
         Fn::GetAtt:
           - LambdaDeviceOnboardingIAMRole
           - Arn
-      Runtime: nodejs14.x
+      Runtime: nodejs18.x
       TracingConfig:
         Mode: Active
       EphemeralStorage:

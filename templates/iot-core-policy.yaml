@@ -39,7 +39,7 @@ Resources:
     Properties:
       FunctionName: IotPolicyGenerator
       Handler: index.handler
-      Runtime: nodejs14.x
+      Runtime: nodejs18.x
       MemorySize: 128
       Timeout: 15
       Role:
@@ -50,7 +50,7 @@ Resources:
         Mode: Active
       Code:
         ZipFile: |
-          const aws = require("aws-sdk");
+          const { IoTClient, CreatePolicyCommand } = require("@aws-sdk/client-iot");
           const response = require('cfn-response');
           exports.handler = function(event, context) {
               console.log("REQUEST RECEIVED:\n" + JSON.stringify(event));
@@ -95,8 +95,8 @@ Resources:
                   ]     
               }`;
               console.log("Policy document:\n", policyDocument);
-              const iot = new aws.Iot();
-              iot.createPolicy({policyName, policyDocument}, (err, data) => {
+              const iot = new IoTClient();
+              iot.send(new CreatePolicyCommand({policyName, policyDocument}), (err, data) => {
               let responseData, responseStatus;
                   if (err) {
                       responseStatus = "FAILED";

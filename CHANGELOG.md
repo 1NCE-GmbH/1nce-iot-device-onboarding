@@ -11,3 +11,7 @@ Support Asia Pacific (ap-northeast-1) Breakout Region
 ## v1.0.2 (October 2023)
 
 Use AWS IoT Core "ATS signed data endpoint" as MQTT broker endpoint URL.
+
+## v2.0.0 (March 2024)
+
+Upgrade Node version from 14 to 18 and multiple project dependencies.

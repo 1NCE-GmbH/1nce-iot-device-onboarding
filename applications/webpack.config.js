@@ -34,4 +34,12 @@ module.exports = {
     cleanAfterEveryBuildPatterns: ['**/*.LICENSE.txt'],
   })],
   stats: 'errors-only',
+  externals: [
+    '@aws-sdk/client-dynamodb',
+    '@aws-sdk/client-iot',
+    '@aws-sdk/client-iot-data-plane',
+    '@aws-sdk/client-sns',
+    '@aws-sdk/client-sqs',
+    '@aws-sdk/util-dynamodb',
+  ]
 };
