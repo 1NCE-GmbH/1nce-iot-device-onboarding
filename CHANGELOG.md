@@ -18,4 +18,4 @@ Upgrade Node version from 14 to 18 and multiple project dependencies.
 
 ## v2.0.1 (March 2024)
 
-Add resolver directive to nginx config in order to avoid 499 errors.
+Add workaround to avoid stale connections when DNS host changes IP address.
