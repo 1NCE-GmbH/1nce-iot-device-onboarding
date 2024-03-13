@@ -15,3 +15,7 @@ Use AWS IoT Core "ATS signed data endpoint" as MQTT broker endpoint URL.
 ## v2.0.0 (March 2024)
 
 Upgrade Node version from 14 to 18 and multiple project dependencies.
+
+## v2.0.1 (March 2024)
+
+Add workaround to avoid stale connections when DNS host changes IP address.
