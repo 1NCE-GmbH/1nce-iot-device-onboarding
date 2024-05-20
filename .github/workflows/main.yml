@@ -81,13 +81,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18.x'
-      - name: chmod
+      - name: Give execution permission to script
         run: chmod +x ./scripts/build.sh
       - name: Build Temporary
-        run: ./scripts/build.sh dev temp-merge-request-${{ github.event.number }}
+        run: sudo bash ./scripts/build.sh dev temp-merge-request-${{ github.event.number }}
         if: github.event_name == 'pull_request'
       - name: Build Main
-        run: ./scripts/build.sh ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+        run: sudo bash ./scripts/build.sh ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
         if: github.event_name != 'pull_request'
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -105,6 +105,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Use Phython
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.7'
+      - name: Give execution permission to script
+        run: chmod +x ./scripts/publish.sh
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build/
       - name: Set AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -112,20 +123,9 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           role-duration-seconds: 900 # 15 minutes
           mask-aws-account-id: true
-      - name: Use Phython
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.7'
-      - name: chmod
-        run: chmod +x ./scripts/publish.sh
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build
-          path: build/
       - name: Publish Temporary
-        run: ./scripts/publish.sh dev temp-merge-request-${{ github.event.number }} latest
+        run: sudo bash ./scripts/publish.sh dev temp-merge-request-${{ github.event.number }} latest
         if: github.event_name == 'pull_request'
       - name: Publish Main
-        run: ./scripts/publish.sh ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }} "" latest
+        run: sudo bash ./scripts/publish.sh ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }} "" latest
         if: github.event_name != 'pull_request'
