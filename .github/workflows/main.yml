@@ -124,7 +124,7 @@ jobs:
           role-duration-seconds: 900 # 15 minutes
           mask-aws-account-id: true
       - name: Publish Temporary
-        run: sudo bash ./scripts/publish.sh dev temp-merge-request-${{ github.event.number }} latest
+        run: sudo bash ./scripts/publish.sh dev temp-merge-request-${{ github.event.number }}
         if: github.event_name == 'pull_request'
       - name: Publish Main
         run: sudo bash ./scripts/publish.sh ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }} "" latest
