@@ -417,7 +417,8 @@ Custom Lambda and resources to invoke [SIM Retrieval Lambda](#sim-retrieval-lamb
 ## Building the project
 
 In order to be able to deploy the templates to your S3 Bucket and then use it in the Cloud Formation, it is necessary to build the files beforehand.<br>For that purpose, there is a script developed for Linux systems that will do the job. The script has the following requirements:
-- Admin rights, to be able to install dependencies
+- zip unix utility
+- yq command-line tool (https://github.com/mikefarah/yq)
 - Node 18 or newer
 - Deployment values file properly filled (deploymentValues.yaml)
 
@@ -425,7 +426,7 @@ The `build.sh` script is located under the `scripts` folder and it can receive t
 
 ### Deployment Values
 
-Deployment values is a file located in the root of the repository and has the responsibility to keep shared values used across the templates. Most of them don't need to be touched and are there only because that is a common place for being reused. But, the values of `codeBaseBucket`, `codeBaseBucketRegion`, and `version` needs to be updated before running the script. Those values, except for the `version`, are described under the name of an environment. One can have multiple environments  in the file, but each of those needs to have values for `codeBaseBucket` and `codeBaseBucketRegion`. When running the script, the environment should be informed as the first argument and the respective value will be used when reading the file. <br><br>Description of the keys in the deploymentValues.yaml:
+Deployment values is a file located in the root of the repository and has the responsibility to keep shared values used across the templates. Most of them don't need to be touched and are there only because that is a common place for being reused. But, the values of `codeBaseBucket`, `codeBaseBucketRegion`, and `version` needs to be updated before running the script. Those values, except for the `version`, are described under the name of an environment. One can have multiple environments in the file, but each of those needs to have values for `codeBaseBucket` and `codeBaseBucketRegion`. When running the script, the environment should be informed as the first argument and the respective value will be used when reading the file. <br><br>Description of the keys in the deploymentValues.yaml:
 - `codeBaseBucket` is the S3 bucket name
 - `codeBaseBucketRegion` is the region where the S3 bucket is located
 - `version` which will be used as the main folder in the bucket (will be ignored if a second argument is provided to the build script)
@@ -440,7 +441,7 @@ Deployment values is a file located in the root of the repository and has the re
 
 ### The script
 
-The build script starts by installing some tools, namely ZIP, WGET, and YQ. Those packages can only be installed if `apt` or `apk` package manager is available. The second step will be checking and extracting the values from `deploymentValues.yaml`. Then, all the node dependencies will be installed using `npm ci` just before bundling and zipping it. Finally, all the files will be moved to the build folder, and values extracted from `deploymentValues.yaml` placed in the right spots. Now, the project is ready to go.
+The build script starts by checking and extracting the values from `deploymentValues.yaml`. Then, all the node dependencies will be installed using `npm ci` just before bundling and zipping it. Finally, all the files will be moved to the build folder, and values extracted from `deploymentValues.yaml` placed in the right spots. Now, the project is ready to go.
 
 ```sh
 ./scripts/build.sh {{ENVIRONMENT}} {{VERSION}}
@@ -453,12 +454,11 @@ For Device Onboarding stack rollout all CFN templates and other supporting files
 Prerequisites before running the script:
 - AWS S3 bucket with "Public" access rights is created
 - Non expired AWS credentials are available for AWS CLI under default profile, with the rights to upload files to the S3 bucket
-- Python pip command is available in CLI
+- yq command-line tool (https://github.com/mikefarah/yq)
 - Solution is compiled and prepared in the build folder using `./scripts/build.sh` script
 - `deploymentValues.yaml` file is available and contains version number and name of the `codeBaseBucket` under according environment name
 
 
-Script must be executed with sudo permissions, because it is installing yq which is needed for yaml parameter file reading.
 Following command can be used:
 ```sh
 sudo ./scripts/publish.sh dev V1.0.2 latest

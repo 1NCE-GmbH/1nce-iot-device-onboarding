@@ -14,18 +14,15 @@ if [ -z "$node_version" ]; then
     exit 1
 fi
 
-echo "Installing tools..."
-if which apt-get; then
-    apt-get update -y
-    apt-get install zip wget -y
-elif which apk; then
-    apk -U add zip wget
-else
-    echo "ERROR: This script is only supported when apt-get or apk is available"
+if ! which yq > /dev/null; then
+    echo "ERROR: yq command line tool is missing"
     exit 1
 fi
 
-wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq
+if ! which zip > /dev/null; then
+    echo "ERROR: zip command line tool is missing"
+    exit 1
+fi
 
 echo "Retrieving values from deploymentValues.yaml..."
 get_version=$(yq '.version' deploymentValues.yaml)

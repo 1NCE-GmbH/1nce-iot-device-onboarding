@@ -81,13 +81,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18.x'
+      - name: Install zip
+        run: sudo apt-get update && sudo apt-get install zip -y
+      - name: Install yq
+        uses: mikefarah/yq@v4
       - name: Give execution permission to script
         run: chmod +x ./scripts/build.sh
       - name: Build Temporary
-        run: sudo bash ./scripts/build.sh dev temp-merge-request-${{ github.event.number }}
+        run: ./scripts/build.sh dev temp-merge-request-${{ github.event.number }}
         if: github.event_name == 'pull_request'
       - name: Build Main
-        run: sudo bash ./scripts/build.sh ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+        run: ./scripts/build.sh ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
         if: github.event_name != 'pull_request'
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
