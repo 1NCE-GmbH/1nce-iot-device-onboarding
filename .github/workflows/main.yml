@@ -110,7 +110,7 @@ jobs:
         with:
           role-to-assume: ${{ secrets.IAMROLE_GITHUB }}
           aws-region: ${{ env.AWS_REGION }}
-          role-duration-seconds: 300 # 5 minutes
+          role-duration-seconds: 900 # 15 minutes
           mask-aws-account-id: true
       - name: Use Phython
         uses: actions/setup-python@v5
