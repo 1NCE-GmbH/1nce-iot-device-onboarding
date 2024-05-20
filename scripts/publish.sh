@@ -5,15 +5,15 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-if ! which pip > /dev/null; then
-    echo "ERROR: pip is missing"
+if ! which aws > /dev/null; then
+    echo "ERROR: AWS CLI is missing"
     exit 1
 fi
 
-echo "Preparing script..."
-
-pip install awscli
-wget -q https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq
+if ! which yq > /dev/null; then
+    echo "ERROR: yq is missing"
+    exit 1
+fi
 
 echo "Reading deployment values from deploymentValues.yaml file for $1 environment..."
 

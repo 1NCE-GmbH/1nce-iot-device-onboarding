@@ -105,10 +105,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Use Phython
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.7'
+      - name: Install yq
+        uses: mikefarah/yq@v4
       - name: Give execution permission to script
         run: chmod +x ./scripts/publish.sh
       - name: Download Artifact
@@ -124,8 +122,8 @@ jobs:
           role-duration-seconds: 900 # 15 minutes
           mask-aws-account-id: true
       - name: Publish Temporary
-        run: sudo bash ./scripts/publish.sh dev temp-merge-request-${{ github.event.number }}
+        run: ./scripts/publish.sh dev temp-merge-request-${{ github.event.number }}
         if: github.event_name == 'pull_request'
       - name: Publish Main
-        run: sudo bash ./scripts/publish.sh ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }} "" latest
+        run: ./scripts/publish.sh ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }} "" latest
         if: github.event_name != 'pull_request'
