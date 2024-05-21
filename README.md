@@ -1,5 +1,5 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-![version](https://img.shields.io/badge/version-2.0.0-blue)
+![version](https://img.shields.io/badge/version-2.0.1-blue)
 
 The Open Source project has one clear but distinctive focus - Enabling AWS customers to automatically onboard their IoT Devices into the AWS IoT Core (device-onboarding-as-a-Service) following a self-managed approach. Customers with the "1NCE Connect" product can map their IoT devices via SIM cards to certificates for the AWS IoT Core. The certificates allow publishing, subscription, and connection to AWS IoT Core MQTT broker.
 
@@ -328,8 +328,9 @@ Nginx config:
 `cat /etc/nginx/sites-available/default`
 
 "proxy_pass" should contain the onboarding endpoint from the SSM parameter.<br />
-"proxy_set_header" should set x-api-key for onboarding endpoint.
+"proxy_set_header" should set x-api-key for onboarding endpoint.<br />
 "proxy_set_header" should set onboarding-ip header.<br />
+"resolver" is set to Route53 DNS address (fixed IP 169.254.169.253) in order to keep instances' IPs up to date. Do not change this value.<br />
 
 Nginx logs:
 `tail /var/log/nginx/access.log` 
