@@ -328,8 +328,9 @@ Nginx config:
 `cat /etc/nginx/sites-available/default`
 
 "proxy_pass" should contain the onboarding endpoint from the SSM parameter.<br />
-"proxy_set_header" should set x-api-key for onboarding endpoint.
+"proxy_set_header" should set x-api-key for onboarding endpoint.<br />
 "proxy_set_header" should set onboarding-ip header.<br />
+"resolver" is set to Route53 DNS address (fixed IP 169.254.169.253) in order to keep instances' IPs up to date. Do not change this value.<br />
 
 Nginx logs:
 `tail /var/log/nginx/access.log` 
