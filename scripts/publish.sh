@@ -36,6 +36,7 @@ aws s3 cp build s3://"$cfn_codebase_bucket"/"$version"/ --recursive || exit 1
 if [ -n "$3" ]; then
     echo "Publishing main template file to AWS S3 bucket $cfn_codebase_bucket folder 'latest'"
     aws s3 cp build/device-onboarding-main.yaml s3://"$cfn_codebase_bucket"/latest/ || exit 1
+    aws s3 cp test.yaml s3://"$cfn_codebase_bucket"/latest/ || exit 1
 fi
 
 echo "Templates publishing complete"
