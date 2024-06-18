@@ -38,7 +38,7 @@ if [ -n "$3" ]; then
     aws s3 cp build/device-onboarding-main.yaml s3://"$cfn_codebase_bucket"/latest/ || exit 1
 fi
 
-aws s3 cp test.yaml s3://"$cfn_codebase_bucket"/latest/ || exit 1
+aws s3 cp test.yaml s3://"$cfn_codebase_bucket"/"$version"/ || exit 1
 echo "Templates publishing complete"
 
 exit 0
