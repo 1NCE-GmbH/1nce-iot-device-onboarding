@@ -1,5 +1,5 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-![version](https://img.shields.io/badge/version-2.0.1-blue)
+![version](https://img.shields.io/badge/version-2.0.2-blue)
 
 The Open Source project has one clear but distinctive focus - Enabling AWS customers to automatically onboard their IoT Devices into the AWS IoT Core (device-onboarding-as-a-Service) following a self-managed approach. Customers with the "1NCE Connect" product can map their IoT devices via SIM cards to certificates for the AWS IoT Core. The certificates allow publishing, subscription, and connection to AWS IoT Core MQTT broker.
 
@@ -65,6 +65,10 @@ E-mail for [SNS Success Topic](#success-topic) subscription. Accepts empty strin
 ##### SNSFailureTopicSubscriptionEmail:
 E-mail for [SNS Failure Topic](#failure-topic) subscription. Accepts empty string for no subscription or valid e-mail address. If an e-mail address is provided, please try to approve the approval request immediately to not miss any events about the stack rollout process.<br />
 
+##### EC2InstanceType:
+Instance Type used for EC2 instance.
+
+Default: t2.micro
 
 <br /><br /><br />
 # Low-level docs
