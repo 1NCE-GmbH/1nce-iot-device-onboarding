@@ -16,7 +16,6 @@ Parameters:
   EC2InstanceType:
     Type: String
     Description: Instance Type Used for EC2
-    Default: t2.micro
   VPCPrivateSubnetId:
     Type: String
     Description: VPC Private Subnet id

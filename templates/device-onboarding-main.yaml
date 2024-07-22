@@ -53,6 +53,13 @@ Parameters:
     Description: Email for Success Topic Subscription. Empty string or valid e-mail. Verbose !
     Type: String
     AllowedPattern: ^$|[^\s@]+@[^\s@]+\.[^\s@]+
+  EC2InstanceType:
+    Description: EC2 Instance type
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - t3a.micro
 Mappings:
   #=======================================================
   #
@@ -619,6 +626,8 @@ Resources:
           Fn::GetAtt:
             - SNSResourcesStack
             - Outputs.SNSFailureTopicArn
+        EC2InstanceType:
+          Ref: EC2InstanceType
         SnsSuccessSummaryTopicARN:
           Fn::GetAtt:
             - SNSResourcesStack
