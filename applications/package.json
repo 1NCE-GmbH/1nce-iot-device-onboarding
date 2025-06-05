@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "scripts": {
     "bundle": "webpack",
@@ -18,18 +18,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.523.0",
-    "@aws-sdk/client-iot": "^3.523.0",
-    "@aws-sdk/client-iot-data-plane": "^3.523.0",
-    "@aws-sdk/client-sns": "^3.523.0",
-    "@aws-sdk/client-sqs": "^3.523.0",
-    "@aws-sdk/util-dynamodb": "^3.523.0",
-    "axios": "^1.6.7"
+    "@aws-sdk/client-dynamodb": "^3.823.0",
+    "@aws-sdk/client-iot": "^3.823.0",
+    "@aws-sdk/client-iot-data-plane": "^3.823.0",
+    "@aws-sdk/client-sns": "^3.823.0",
+    "@aws-sdk/client-sqs": "^3.823.0",
+    "@aws-sdk/util-dynamodb": "^3.823.0",
+    "axios": "^1.6.8"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.134",
     "@types/jest": "^29.5.12",
-    "@types/node": "^18.19.19",
+    "@types/node": "^22.15.29",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "aws-sdk-client-mock": "^2.2.0",
     "clean-webpack-plugin": "^4.0.0",

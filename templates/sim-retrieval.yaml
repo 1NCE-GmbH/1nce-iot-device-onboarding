@@ -202,7 +202,7 @@ Resources:
         Fn::GetAtt:
           - LambdaSimRetrievalIAMRole
           - Arn
-      Runtime: nodejs18.x
+      Runtime: nodejs22.x
       TracingConfig:
         Mode: Active
       EphemeralStorage:

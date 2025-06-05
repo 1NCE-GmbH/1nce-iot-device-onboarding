@@ -10,7 +10,7 @@ if [ -z "$1" ]; then
 fi
 node_version=$(node -v | sed -En '/^v([1-9][8-9]|[2-9][[:digit:]])[[:digit:]]*.[[:digit:]]+.[[:digit:]]+$/p')
 if [ -z "$node_version" ]; then
-    echo "ERROR: Node 18 or posterior is missing. Actual: $(node -v)"
+    echo "ERROR: Node 22 or posterior is missing. Actual: $(node -v)"
     exit 1
 fi
 
