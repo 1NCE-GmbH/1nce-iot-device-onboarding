@@ -72,8 +72,8 @@ Default: t2.micro
 
 ### To upgrade your CloudFormation stack:
 1. Log in to AWS and locate your main CloudFormation stack.
-2. Select **Update stack**, then [**Make direct update**](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-direct.html).
-3. For the Amazon S3 URL, use https://device-onboarding-prod-cloudformation-templates.s3.eu-central-1.amazonaws.com/$VERSION/device-onboarding-main.yaml, replacing $VERSION with the project's version [tag](https://github.com/1NCE-GmbH/1nce-iot-device-onboarding/tags).
+2. Click **Update stack**, then [**Make direct update**](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-direct.html).
+3. Select **Replace existing template**. For the Amazon S3 URL, use https://device-onboarding-prod-cloudformation-templates.s3.eu-central-1.amazonaws.com/$VERSION/device-onboarding-main.yaml, replacing $VERSION with the project's version [tag](https://github.com/1NCE-GmbH/1nce-iot-device-onboarding/tags).
 4. Follow the prompts and click Submit to deploy.
 
 <br /><br /><br />
