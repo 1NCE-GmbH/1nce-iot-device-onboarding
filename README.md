@@ -1,5 +1,5 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-![version](https://img.shields.io/badge/version-2.0.2-blue)
+![version](https://img.shields.io/badge/version-2.1.0-blue)
 
 The Open Source project has one clear but distinctive focus - Enabling AWS customers to automatically onboard their IoT Devices into the AWS IoT Core (device-onboarding-as-a-Service) following a self-managed approach. Customers with the "1NCE Connect" product can map their IoT devices via SIM cards to certificates for the AWS IoT Core. The certificates allow publishing, subscription, and connection to AWS IoT Core MQTT broker.
 
@@ -69,6 +69,12 @@ E-mail for [SNS Failure Topic](#failure-topic) subscription. Accepts empty strin
 Instance Type used for EC2 instance.
 
 Default: t2.micro
+
+### To upgrade your CloudFormation stack:
+1. Log in to AWS and locate your main CloudFormation stack.
+2. Select **Update stack**, then [**Make direct update**](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-direct.html).
+3. For the Amazon S3 URL, use https://device-onboarding-prod-cloudformation-templates.s3.eu-central-1.amazonaws.com/$VERSION/device-onboarding-main.yaml, replacing $VERSION with the project's version tag.
+4. Follow the prompts and click Submit to deploy.
 
 <br /><br /><br />
 # Low-level docs
@@ -424,7 +430,7 @@ Custom Lambda and resources to invoke [SIM Retrieval Lambda](#sim-retrieval-lamb
 In order to be able to deploy the templates to your S3 Bucket and then use it in the Cloud Formation, it is necessary to build the files beforehand.<br>For that purpose, there is a script developed for Linux systems that will do the job. The script has the following requirements:
 - zip unix utility
 - yq command-line tool (https://github.com/mikefarah/yq)
-- Node 18 or newer
+- Node 22 or newer
 - Deployment values file properly filled (deploymentValues.yaml)
 
 The `build.sh` script is located under the `scripts` folder and it can receive two arguments. The first refers to the environment in which the files will be deployed. The second argument is used to pass a version different from the one described in the `deploymentValues.yaml`. That is useful when deploying temporary testable versions.

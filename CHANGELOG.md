@@ -24,3 +24,8 @@ Add workaround to avoid stale connections when DNS host changes IP address.
 
 Fix Nginx resolver configuration to avoid 499 http error codes.
 In main CFN template allow to select between t2.micro and t3a.micro EC2 instance types.
+
+
+## v2.1.0 (June 2025)
+
+Lambda runtimes have been updated to Node.js 22.x and Python 3.13. Project dependencies were also upgraded.

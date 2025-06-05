@@ -39,7 +39,7 @@ Resources:
     Properties:
       FunctionName: IotPolicyGenerator
       Handler: index.handler
-      Runtime: nodejs18.x
+      Runtime: nodejs22.x
       MemorySize: 128
       Timeout: 15
       Role:
