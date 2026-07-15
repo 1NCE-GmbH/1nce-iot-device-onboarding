@@ -39,7 +39,7 @@ Resources:
     Properties:
       FunctionName: IotPolicyGenerator
       Handler: index.handler
-      Runtime: nodejs22.x
+      Runtime: nodejs24.x
       MemorySize: 128
       Timeout: 15
       Role:
@@ -52,10 +52,10 @@ Resources:
         ZipFile: |
           const { IoTClient, CreatePolicyCommand } = require("@aws-sdk/client-iot");
           const response = require('cfn-response');
-          exports.handler = function(event, context) {
+          exports.handler = async function(event, context) {
               console.log("REQUEST RECEIVED:\n" + JSON.stringify(event));
               if (event.RequestType == "Delete") {
-                  response.send(event, context, "SUCCESS");
+                  await sendResponse(event, context, response.SUCCESS, {});
                   return;
               }
               const policyName = "device-onboarding";
@@ -96,20 +96,30 @@ Resources:
               }`;
               console.log("Policy document:\n", policyDocument);
               const iot = new IoTClient();
-              iot.send(new CreatePolicyCommand({policyName, policyDocument}), (err, data) => {
-              let responseData, responseStatus;
-                  if (err) {
-                      responseStatus = "FAILED";
-                      responseData = { Error: "createIoTPolicy call failed" };
-                      console.error(responseData.Error + ":\n", err);
-                  } else  {
-                      responseStatus = "SUCCESS";
-                      responseData = { policyName: data.policyName };
-                      console.log('Response data: ' + JSON.stringify(responseData));
-                  }
-                  response.send(event, context, responseStatus, responseData);
-              });
+              try {
+                  const data = await iot.send(new CreatePolicyCommand({policyName, policyDocument}));
+                  const responseData = { policyName: data.policyName };
+                  console.log('Response data: ' + JSON.stringify(responseData));
+                  await sendResponse(event, context, response.SUCCESS, responseData);
+              } catch (err) {
+                  const responseData = { Error: "createIoTPolicy call failed" };
+                  console.error(responseData.Error + ":\n", err);
+                  await sendResponse(event, context, response.FAILED, responseData);
+              }
           };
+          // Wrap cfn-response's callback-based send so it can be awaited in the async handler.
+          function sendResponse(event, context, status, data) {
+              return new Promise(function(resolve) {
+                  const done = context.done;
+                  context.done = function() {
+                      resolve();
+                      if (done) {
+                          done.apply(context, arguments);
+                      }
+                  };
+                  response.send(event, context, status, data);
+              });
+          }
   IoTPolicy:
     Type: Custom::IotPolicyGenerator
     Properties:

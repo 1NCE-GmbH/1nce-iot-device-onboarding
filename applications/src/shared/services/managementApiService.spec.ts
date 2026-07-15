@@ -3,7 +3,7 @@ process.env.MANAGEMENT_API_CREDENTIALS_SECRET_ARN = "MANAGEMENT_API_CREDENTIALS_
 
 import { mocked } from "jest-mock";
 import axios from "axios";
-import { getAuthToken, getAllSims } from "./managementApiService";
+import { getAuthToken, getAllSims, resolveSimsPath } from "./managementApiService";
 import { SIM } from "../types/sim";
 import { retrieveJSONSecret } from "../utils/secretsManagerHelper";
 
@@ -183,5 +183,97 @@ describe("Management API Service", () => {
         expect(console.error).toHaveBeenCalledWith("FAILURE calling management api sims endpoint", "API error");
       });
     });
+  });
+});
+
+describe("resolveSimsPath", () => {
+  // C2 — v1 selects the v1 path. Validates: Requirements 2.2
+  it("should return the v1 path when version is v1", () => {
+    expect(resolveSimsPath("v1")).toEqual("/v1/sims");
+  });
+
+  // C1 — v2 selects the v2 path. Validates: Requirements 2.1
+  it("should return the v2 path when version is v2", () => {
+    expect(resolveSimsPath("v2")).toEqual("/v2/sims");
+  });
+
+  // C3 — absent version defaults to v1. Validates: Requirements 2.3, 1.2
+  it("should default to the v1 path when version is undefined", () => {
+    expect(resolveSimsPath(undefined)).toEqual("/v1/sims");
+  });
+
+  it("should default to the v1 path when version is an empty string", () => {
+    expect(resolveSimsPath("")).toEqual("/v1/sims");
+  });
+
+  // C4 — unsupported version errors. Validates: Requirements 2.4
+  it("should throw an error naming the invalid value for unsupported versions", () => {
+    expect(() => resolveSimsPath("v3")).toThrow(new Error("Unsupported platform version: v3"));
+  });
+});
+
+describe("getAllSims path selection", () => {
+  const OLD_ENV = process.env;
+
+  beforeEach(() => {
+    jest.resetModules();
+    process.env = { ...OLD_ENV, MANAGEMENT_API_URL: "API_URL", MANAGEMENT_API_CREDENTIALS_SECRET_ARN: "MANAGEMENT_API_CREDENTIALS_SECRET_ARN" };
+  });
+
+  afterEach(() => {
+    process.env = OLD_ENV;
+  });
+
+  // C5 — mapping unchanged under v2. Validates: Requirements 3.2
+  it("should request the v2 path and map sims identically to v1 when PLATFORM_VERSION is v2", async () => {
+    process.env.PLATFORM_VERSION = "v2";
+    const { getAllSims: getAllSimsV2 } = await import("./managementApiService");
+    const axiosV2 = (await import("axios")).default;
+
+    mocked(axiosV2.get).mockResolvedValueOnce({
+      data: [
+        { iccid: "1111111111", ip_address: "10.0.0.1" },
+        { iccid: "2222222222", ip_address: "10.0.0.2" },
+      ],
+      headers: { "x-total-pages": 1 },
+    });
+
+    const result = await getAllSimsV2("JWT_TOKEN");
+
+    expect(axiosV2.get).toHaveBeenCalledWith(
+      "API_URL/v2/sims",
+      expect.objectContaining({ headers: { Authorization: "Bearer JWT_TOKEN" } }),
+    );
+    expect(result).toHaveLength(2);
+    expect(result.map((sim: SIM) => ({
+      iccid: sim.iccid,
+      ip: sim.ip,
+      active: sim.active,
+      certificate: sim.certificate,
+      certificateId: sim.certificateId,
+      privateKey: sim.privateKey,
+    }))).toStrictEqual([
+      { iccid: "1111111111", ip: "10.0.0.1", active: true, certificate: "", certificateId: "", privateKey: "" },
+      { iccid: "2222222222", ip: "10.0.0.2", active: true, certificate: "", certificateId: "", privateKey: "" },
+    ]);
+  });
+
+  // C2 — v1 selects the v1 path (via getAllSims). Validates: Requirements 2.2
+  it("should request the v1 path when PLATFORM_VERSION is v1", async () => {
+    process.env.PLATFORM_VERSION = "v1";
+    const { getAllSims: getAllSimsV1 } = await import("./managementApiService");
+    const axiosV1 = (await import("axios")).default;
+
+    mocked(axiosV1.get).mockResolvedValueOnce({
+      data: [{ iccid: "1111111111", ip_address: "10.0.0.1" }],
+      headers: { "x-total-pages": 1 },
+    });
+
+    await getAllSimsV1("JWT_TOKEN");
+
+    expect(axiosV1.get).toHaveBeenCalledWith(
+      "API_URL/v1/sims",
+      expect.objectContaining({ headers: { Authorization: "Bearer JWT_TOKEN" } }),
+    );
   });
 });

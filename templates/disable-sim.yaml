@@ -95,6 +95,9 @@ Resources:
   LambdaDisableSimFunction:
     Type: AWS::Lambda::Function
     Properties:
+      LoggingConfig:
+        LogGroup:
+          Ref: LambdaDisableSimLogGroup
       Description: Disable SIMs in database
       Environment:
         Variables:
@@ -119,11 +122,18 @@ Resources:
         Fn::GetAtt:
           - LambdaDisableSimIAMRole
           - Arn
-      Runtime: nodejs22.x
+      Runtime: nodejs24.x
       TracingConfig:
         Mode: Active
       EphemeralStorage:
         Size: 512
+
+  LambdaDisableSimLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Sub: /aws/lambda/${LambdaName}
+      RetentionInDays: 30
 
   LambdaDisableSimFunctionEventSourceMapping:
     Type: AWS::Lambda::EventSourceMapping
