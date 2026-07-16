@@ -36,7 +36,7 @@ async function simRetrieval(): Promise<void> {
 
   const errors: string[] = batchResults
     .filter(result => result.status === "rejected")
-    .map(result => (result as PromiseRejectedResult).reason);
+    .map(result => result.reason);
 
   if (errors.length) {
     throw new Error(JSON.stringify(errors));
