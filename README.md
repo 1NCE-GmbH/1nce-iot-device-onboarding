@@ -82,10 +82,7 @@ Default: t2.micro
 
 #### Identify your platform
 
-Check your account identifier in the 1NCE portal:
-
-- A **Company Id** starting with `8` indicates the **Legacy Platform (v1)**.
-- A **Company No** starting with `9` indicates the **New Platform (v2)**.
+To understand which platform you are operating in, visit https://help.1nce.com/platform-migration/.
 
 #### Create Management API-user credentials
 

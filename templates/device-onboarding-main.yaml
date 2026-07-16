@@ -61,7 +61,7 @@ Parameters:
       - t2.micro
       - t3a.micro
   PlatformVersion:
-    Description: 1NCE platform version for SIM retrieval. A Company Id starting with 8 indicates the Legacy Platform (v1); a Company No starting with 9 indicates the New Platform (v2).
+    Description: 1NCE platform version for SIM retrieval. To understand which platform you are operating in, visit https://help.1nce.com/platform-migration/.
     Type: String
     Default: v1
     AllowedValues:
