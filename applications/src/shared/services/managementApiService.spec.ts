@@ -187,17 +187,14 @@ describe("Management API Service", () => {
 });
 
 describe("resolveSimsPath", () => {
-  // C2 — v1 selects the v1 path. Validates: Requirements 2.2
   it("should return the v1 path when version is v1", () => {
     expect(resolveSimsPath("v1")).toEqual("/v1/sims");
   });
 
-  // C1 — v2 selects the v2 path. Validates: Requirements 2.1
   it("should return the v2 path when version is v2", () => {
     expect(resolveSimsPath("v2")).toEqual("/v2/sims");
   });
 
-  // C3 — absent version defaults to v1. Validates: Requirements 2.3, 1.2
   it("should default to the v1 path when version is undefined", () => {
     expect(resolveSimsPath(undefined)).toEqual("/v1/sims");
   });
@@ -206,7 +203,6 @@ describe("resolveSimsPath", () => {
     expect(resolveSimsPath("")).toEqual("/v1/sims");
   });
 
-  // C4 — unsupported version errors. Validates: Requirements 2.4
   it("should throw an error naming the invalid value for unsupported versions", () => {
     expect(() => resolveSimsPath("v3")).toThrow(new Error("Unsupported platform version: v3"));
   });
@@ -224,7 +220,6 @@ describe("getAllSims path selection", () => {
     process.env = OLD_ENV;
   });
 
-  // C5 — mapping unchanged under v2. Validates: Requirements 3.2
   it("should request the v2 path and map sims identically to v1 when PLATFORM_VERSION is v2", async () => {
     process.env.PLATFORM_VERSION = "v2";
     const { getAllSims: getAllSimsV2 } = await import("./managementApiService");
@@ -258,7 +253,6 @@ describe("getAllSims path selection", () => {
     ]);
   });
 
-  // C2 — v1 selects the v1 path (via getAllSims). Validates: Requirements 2.2
   it("should request the v1 path when PLATFORM_VERSION is v1", async () => {
     process.env.PLATFORM_VERSION = "v1";
     const { getAllSims: getAllSimsV1 } = await import("./managementApiService");
