@@ -1,5 +1,5 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-![version](https://img.shields.io/badge/version-2.1.0-blue)
+![version](https://img.shields.io/badge/version-2.2.0-blue)
 
 The Open Source project has one clear but distinctive focus - Enabling AWS customers to automatically onboard their IoT Devices into the AWS IoT Core (device-onboarding-as-a-Service) following a self-managed approach. Customers with the "1NCE Connect" product can map their IoT devices via SIM cards to certificates for the AWS IoT Core. The certificates allow publishing, subscription, and connection to AWS IoT Core MQTT broker.
 
@@ -26,9 +26,15 @@ At least one 1NCE SIM card and access to the 1NCE.com portal. Access to an AWS a
 ### Input Parameters
 
 ##### ManagementApiUsername, ManagementApiPassword
-[1NCE portal](https://portal.1nce.com/portal/customer/users?) API User credentials.
+1NCE Management API user credentials. A user with an API role should be created, and its credentials are used to retrieve all customers' 1NCE SIM cards via the [Get ALL SIMs](https://help.1nce.com/dev-hub/reference/getsimsusingget) Endpoint.
 
-A user with an API role should be created. Credentials will be used to retrieve all customers' 1NCE SIM cards via [Get ALL SIMs](https://help.1nce.com/dev-hub/reference/getsimsusingget) Endpoint.
+The portal where the API user is created depends on your platform. See [Platform version (v1 vs v2)](#platform-version-v1-vs-v2) for how to identify your platform and create these credentials on the Legacy Platform (v1) or the New Platform (v2).
+
+##### PlatformVersion
+
+Selects which 1NCE platform the [SIM Retrieval Lambda](#sim-retrieval-lambda) targets when calling the Management API. See [Platform version (v1 vs v2)](#platform-version-v1-vs-v2) for how to identify your platform and create v2 credentials.
+
+Allowed values: `v1`, `v2`. Default: `v1`.
 
 ##### OpenvpnOnboardingUsername, OpenvpnOnboardingPassword
 > :warning: This project uses an OpenVPN connection and may be dropped if you use the same credentials for another purpose.
@@ -69,6 +75,53 @@ E-mail for [SNS Failure Topic](#failure-topic) subscription. Accepts empty strin
 Instance Type used for EC2 instance.
 
 Default: t2.micro
+
+### Platform version (v1 vs v2)
+
+1NCE operates two platforms, and this solution supports both by selecting a platform version at deploy time. The only functional difference is the Management API SIM-retrieval path (`GET /v1/sims` versus `GET /v2/sims`); authentication, pagination, and the SIM payload remain identical.
+
+#### Identify your platform
+
+To understand which platform you are operating in, visit https://help.1nce.com/platform-migration/.
+
+#### Create Management API-user credentials
+
+Create an API user with an API role on the platform that matches your account, then use its username and password for the `ManagementApiUsername` and `ManagementApiPassword` parameters.
+
+**Legacy Platform (v1)** — via the 1NCE customer portal:
+
+1. Log in to the 1NCE customer portal at https://portal.1nce.com/portal/customer/users.
+2. Open the API users section.
+3. Create a new API user with an API role.
+4. Save the generated username and password.
+
+**New Platform (v2)** — via the 1NCE enterprise account portal:
+
+1. Log in to the 1NCE enterprise account portal at https://portal.1nce.com/en/enterprise/account.
+2. Open the API users (or API access) section of the account settings.
+3. Create a new API user with an API role.
+4. Save the generated username and password.
+
+#### Set the platform version at deploy time
+
+The platform version is set through the `PlatformVersion` parameter on the main CloudFormation stack (`device-onboarding-main.yaml`). Set it to `v2` for the New Platform or leave it at the default `v1` for the Legacy Platform. The main stack passes this value down to the [SIM Retrieval Lambda](#sim-retrieval-lambda) as the `PLATFORM_VERSION` environment variable, which selects the `/v1/sims` or `/v2/sims` path.
+
+#### OpenVPN onboarding differences (v1 vs v2)
+
+The OpenVPN connection used by the onboarding [EC2 Instance](#ec2) is configured differently per platform:
+
+- On the **Legacy Platform (v1)**, you supply an OpenVPN username and password through the `OpenvpnOnboardingUsername` and `OpenvpnOnboardingPassword` parameters, and the automated EC2 provisioning brings up the tunnel and sets the `openvpn-onboarding-proxy-server` SSM parameter for you.
+- On the **New Platform (v2)**, the OpenVPN username and password are **not** used, and v2 requires a different OpenVPN client config. The automated provisioning targets v1, so v2 onboarding currently requires the manual steps below.
+
+> :warning: The `OpenvpnOnboardingUsername` and `OpenvpnOnboardingPassword` parameters are ignored on the New Platform (v2).
+
+##### Manual steps for the New Platform (v2)
+
+After the stack is deployed, connect to the onboarding EC2 instance via Session Manager (see [Connect to EC2 machine](#connect-to-ec2-machine)) and:
+
+1. Replace `/etc/openvpn/openvpn-1nce-client.conf` with the New Platform (v2) OpenVPN client config.
+2. Reboot the EC2 instance so the OpenVPN service restarts with the new config.
+3. After the reboot, read the `tun0` interface IP address (run `ifconfig tun0`) and manually update the `openvpn-onboarding-proxy-server` SSM parameter (Systems Manager > Parameter Store) with the onboarding endpoint URL in the form `<tun0-ip>:<nginx-port>/<onboarding-path>`.
 
 ### To upgrade your CloudFormation stack:
 1. Log in to AWS and locate your main CloudFormation stack.
@@ -428,16 +481,15 @@ Custom Lambda and resources to invoke [SIM Retrieval Lambda](#sim-retrieval-lamb
 ## Building the project
 
 In order to be able to deploy the templates to your S3 Bucket and then use it in the Cloud Formation, it is necessary to build the files beforehand.<br>For that purpose, there is a script developed for Linux systems that will do the job. The script has the following requirements:
-- zip unix utility
-- yq command-line tool (https://github.com/mikefarah/yq)
-- Node 22 or newer
+- Admin rights, to be able to install dependencies
+- Node 24 or newer
 - Deployment values file properly filled (deploymentValues.yaml)
 
 The `build.sh` script is located under the `scripts` folder and it can receive two arguments. The first refers to the environment in which the files will be deployed. The second argument is used to pass a version different from the one described in the `deploymentValues.yaml`. That is useful when deploying temporary testable versions.
 
 ### Deployment Values
 
-Deployment values is a file located in the root of the repository and has the responsibility to keep shared values used across the templates. Most of them don't need to be touched and are there only because that is a common place for being reused. But, the values of `codeBaseBucket`, `codeBaseBucketRegion`, and `version` needs to be updated before running the script. Those values, except for the `version`, are described under the name of an environment. One can have multiple environments in the file, but each of those needs to have values for `codeBaseBucket` and `codeBaseBucketRegion`. When running the script, the environment should be informed as the first argument and the respective value will be used when reading the file. <br><br>Description of the keys in the deploymentValues.yaml:
+Deployment values is a file located in the root of the repository and has the responsibility to keep shared values used across the templates. Most of them don't need to be touched and are there only because that is a common place for being reused. But, the values of `codeBaseBucket`, `codeBaseBucketRegion`, and `version` needs to be updated before running the script. Those values, except for the `version`, are described under the name of an environment. One can have multiple environments  in the file, but each of those needs to have values for `codeBaseBucket` and `codeBaseBucketRegion`. When running the script, the environment should be informed as the first argument and the respective value will be used when reading the file. <br><br>Description of the keys in the deploymentValues.yaml:
 - `codeBaseBucket` is the S3 bucket name
 - `codeBaseBucketRegion` is the region where the S3 bucket is located
 - `version` which will be used as the main folder in the bucket (will be ignored if a second argument is provided to the build script)
@@ -452,7 +504,7 @@ Deployment values is a file located in the root of the repository and has the re
 
 ### The script
 
-The build script starts by checking and extracting the values from `deploymentValues.yaml`. Then, all the node dependencies will be installed using `npm ci` just before bundling and zipping it. Finally, all the files will be moved to the build folder, and values extracted from `deploymentValues.yaml` placed in the right spots. Now, the project is ready to go.
+The build script starts by installing some tools, namely ZIP, WGET, and YQ. Those packages can only be installed if `apt` or `apk` package manager is available. The second step will be checking and extracting the values from `deploymentValues.yaml`. Then, all the node dependencies will be installed using `npm ci` just before bundling and zipping it. Finally, all the files will be moved to the build folder, and values extracted from `deploymentValues.yaml` placed in the right spots. Now, the project is ready to go.
 
 ```sh
 ./scripts/build.sh {{ENVIRONMENT}} {{VERSION}}
@@ -465,11 +517,12 @@ For Device Onboarding stack rollout all CFN templates and other supporting files
 Prerequisites before running the script:
 - AWS S3 bucket with "Public" access rights is created
 - Non expired AWS credentials are available for AWS CLI under default profile, with the rights to upload files to the S3 bucket
-- yq command-line tool (https://github.com/mikefarah/yq)
+- Python pip command is available in CLI
 - Solution is compiled and prepared in the build folder using `./scripts/build.sh` script
 - `deploymentValues.yaml` file is available and contains version number and name of the `codeBaseBucket` under according environment name
 
 
+Script must be executed with sudo permissions, because it is installing yq which is needed for yaml parameter file reading.
 Following command can be used:
 ```sh
 sudo ./scripts/publish.sh dev V1.0.2 latest

@@ -9,7 +9,7 @@ Resources:
   EC2VPC:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: 10.0.0.0/24
+      CidrBlock: 9.0.0.0/24
       EnableDnsSupport: true
       EnableDnsHostnames: false
       InstanceTenancy: default
@@ -20,7 +20,7 @@ Resources:
   EC2SubnetPrivate:
     Type: AWS::EC2::Subnet
     Properties:
-      CidrBlock: 10.0.0.0/25
+      CidrBlock: 9.0.0.0/25
       VpcId:
         Ref: EC2VPC
       MapPublicIpOnLaunch: false
@@ -35,7 +35,7 @@ Resources:
         Fn::GetAtt:
           - EC2SubnetPrivate
           - AvailabilityZone
-      CidrBlock: 10.0.0.128/25
+      CidrBlock: 9.0.0.128/25
       VpcId:
         Ref: EC2VPC
       MapPublicIpOnLaunch: false

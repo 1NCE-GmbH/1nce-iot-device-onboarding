@@ -52,6 +52,13 @@ Parameters:
   SnsFailureSummaryTopicARN:
     Type: String
     Description: SNS topic to post summary message on failure case
+  PlatformVersion:
+    Type: String
+    Default: v1
+    AllowedValues:
+      - v1
+      - v2
+    Description: 1NCE platform version used for SIM retrieval (v1 or v2)
 
 Mappings:
   RegionToLayerArnMap:
@@ -169,6 +176,9 @@ Resources:
   LambdaSimRetrievalFunction:
     Type: AWS::Lambda::Function
     Properties:
+      LoggingConfig:
+        LogGroup:
+          Ref: LambdaSimRetrievalLogGroup
       Timeout: 900
       Description: SIMs retrieval function from 1nce API
       Environment:
@@ -187,6 +197,8 @@ Resources:
           SECRETS_MANAGER_TTL: 300 # TTL of a secret in the cache in seconds
           SNS_FAILURE_SUMMARY_TOPIC:
             Ref: SnsFailureSummaryTopicARN
+          PLATFORM_VERSION:
+            Ref: PlatformVersion
       FunctionName:
         Ref: LambdaName
       Handler: index.handler
@@ -202,7 +214,7 @@ Resources:
         Fn::GetAtt:
           - LambdaSimRetrievalIAMRole
           - Arn
-      Runtime: nodejs22.x
+      Runtime: nodejs24.x
       TracingConfig:
         Mode: Active
       EphemeralStorage:
@@ -212,6 +224,13 @@ Resources:
             - RegionToLayerArnMap
             - Ref: AWS::Region
             - LayerArn
+
+  LambdaSimRetrievalLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Sub: /aws/lambda/${LambdaName}
+      RetentionInDays: 30
 
 Outputs:
   #=======================================================

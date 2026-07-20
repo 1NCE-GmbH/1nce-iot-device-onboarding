@@ -5,10 +5,23 @@ import { retrieveJSONSecret } from "../utils/secretsManagerHelper";
 const MANAGEMENT_API_URL = process.env.MANAGEMENT_API_URL as string;
 const MANAGEMENT_API_CREDENTIALS_SECRET_ARN = process.env.MANAGEMENT_API_CREDENTIALS_SECRET_ARN as string;
 const PAGE_SIZE = parseInt(process.env.PAGE_SIZE as string ?? 100);
+const PLATFORM_VERSION = process.env.PLATFORM_VERSION as string;
 
 interface APICredentials {
   username: string;
   password: string;
+}
+
+export function resolveSimsPath(version: string | undefined): string {
+  if (!version || version === "v1") {
+    return "/v1/sims";
+  }
+
+  if (version === "v2") {
+    return "/v2/sims";
+  }
+
+  throw new Error(`Unsupported platform version: ${version}`);
 }
 
 export async function getAuthToken(): Promise<string> {
@@ -57,9 +70,11 @@ export async function getAllSims(authToken: string): Promise<SIM[]> {
 }
 
 async function getSimsPerPage(authToken: string, page: number, pageSize: number): Promise<SimPerPageResults> {
+  const simsPath = resolveSimsPath(PLATFORM_VERSION);
+
   try {
     console.log(`Retrieving SIMs. Page: ${page}`);
-    const response = await axios.get(`${MANAGEMENT_API_URL}/v1/sims`, {
+    const response = await axios.get(`${MANAGEMENT_API_URL}${simsPath}`, {
       params: { page, pageSize },
       headers: {
         Authorization: `Bearer ${authToken}`,

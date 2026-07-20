@@ -8,21 +8,24 @@ if [ -z "$1" ]; then
     echo "ERROR: No environment supplied"
     exit 1
 fi
-node_version=$(node -v | sed -En '/^v([1-9][8-9]|[2-9][[:digit:]])[[:digit:]]*.[[:digit:]]+.[[:digit:]]+$/p')
+node_version=$(node -v | sed -En '/^v(2[4-9]|[3-9][0-9]|[1-9][0-9]{2,})\.[[:digit:]]+\.[[:digit:]]+$/p')
 if [ -z "$node_version" ]; then
-    echo "ERROR: Node 22 or posterior is missing. Actual: $(node -v)"
+    echo "ERROR: Node 24 or posterior is missing. Actual: $(node -v)"
     exit 1
 fi
 
-if ! which yq > /dev/null; then
-    echo "ERROR: yq command line tool is missing"
+echo "Installing tools..."
+if which apt-get; then
+    apt-get update -y
+    apt-get install zip wget -y
+elif which apk; then
+    apk -U add zip wget
+else
+    echo "ERROR: This script is only supported when apt-get or apk is available"
     exit 1
 fi
 
-if ! which zip > /dev/null; then
-    echo "ERROR: zip command line tool is missing"
-    exit 1
-fi
+wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq
 
 echo "Retrieving values from deploymentValues.yaml..."
 get_version=$(yq '.version' deploymentValues.yaml)

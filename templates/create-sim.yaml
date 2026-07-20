@@ -111,6 +111,9 @@ Resources:
   LambdaCreateSimFunction:
     Type: AWS::Lambda::Function
     Properties:
+      LoggingConfig:
+        LogGroup:
+          Ref: LambdaCreateSimLogGroup
       Description: Create SIMs in database and IoT Core
       Environment:
         Variables:
@@ -139,11 +142,18 @@ Resources:
         Fn::GetAtt:
           - LambdaCreateSimIAMRole
           - Arn
-      Runtime: nodejs22.x
+      Runtime: nodejs24.x
       TracingConfig:
         Mode: Active
       EphemeralStorage:
         Size: 512
+
+  LambdaCreateSimLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Sub: /aws/lambda/${LambdaName}
+      RetentionInDays: 30
 
   LambdaCreateSimFunctionEventSourceMapping:
     Type: AWS::Lambda::EventSourceMapping

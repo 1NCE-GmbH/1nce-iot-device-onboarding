@@ -25,7 +25,12 @@ Add workaround to avoid stale connections when DNS host changes IP address.
 Fix Nginx resolver configuration to avoid 499 http error codes.
 In main CFN template allow to select between t2.micro and t3a.micro EC2 instance types.
 
-
 ## v2.1.0 (June 2025)
 
 Lambda runtimes have been updated to Node.js 22.x and Python 3.13. Project dependencies were also upgraded.
+
+## v2.2.0 (July 2026)
+
+Add support for the 1NCE New Platform (v2). A `PlatformVersion` parameter (`v1`|`v2`, default `v1`) on the main CFN template selects whether the SIM Retrieval Lambda calls `GET /v1/sims` or `GET /v2/sims`.
+Lambda runtimes have been updated to Node.js 24.x.
+Reassign the VPC and subnet CIDR ranges in the network template. The VPC now uses `9.0.0.0/24`, with the public subnet on `9.0.0.0/25` and the private subnet on `9.0.0.128/25` (previously allocated within the `10.0.0.0/24` range).
